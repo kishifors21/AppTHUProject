@@ -6,6 +6,10 @@ void main() {
   runApp(MyApp());
 }
 
+Future<http.Response> fetchAlbum() {
+  return http.get(Uri.parse('https://172.24.8.23:8080/volt'));
+}
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
