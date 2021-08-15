@@ -65,7 +65,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initState() {
     super.initState();
-    voltTimer();
+    // voltTimer();
   }
 
   @override
@@ -77,10 +77,15 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Mjpeg(
-                isLive: true,
                 stream:
-                    // 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
-                    'http://172.24.8.23:8080/video_feed',
+                    'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
+                // 'http://172.24.8.23:8080/video_feed',
+                error: (context, error, stack) {
+                  print(error);
+                  print(stack);
+                  return Text(error.toString(),
+                      style: TextStyle(color: Colors.red));
+                },
               ),
               Text(
                 '$_volt',
@@ -93,7 +98,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ),
-        // new Positioned(child: child)
+        new Positioned(
+          bottom: 50,
+          height: 100,
+          width: 100,
+          left: 100,
+          child: JoyStick(),
+        )
       ],
     );
     //   floatingActionButton: FloatingActionButton(
@@ -102,5 +113,141 @@ class _MyHomePageState extends State<MyHomePage> {
     //     child: Icon(Icons.add),
     //   ), // This trailing comma makes auto-formatting nicer for build methods.
     // );
+  }
+}
+// class moveButton extends StatefulWidget {
+//   @override
+//   _moveButtonState createState() => _moveButtonState();
+// }
+
+// class _moveButtonState extends State<moveButton> {
+//   @override
+//   Color _color = Colors.white;
+//   bool isRunning = true;
+//   Widget build(BuildContext context) {
+//     return SliverGrid(
+//       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+//         maxCrossAxisExtent: 200.0,
+//         mainAxisSpacing: 10.0,
+//         crossAxisSpacing: 10.0,
+//         childAspectRatio: 4.0,
+//       ),
+//       delegate: SliverChildBuilderDelegate(
+//         (BuildContext context, int index) {
+//           return Container(
+//             color: _color,
+//             height: 50.0,
+//             width: 50.0,
+//             child: GestureDetector(
+//               onTapDown: (TapDownDetails details) {
+//                 setState(() {
+//                   _color = Colors.yellow;
+//                 });
+//               },
+//               onTapUp: (TapUpDetails details) {
+//                 setState(() {
+//                   _color = Colors.blue;
+//                 });
+//               },
+//               onTapCancel: () {
+//                 setState(() {
+//                   _color = Colors.white;
+//                 });
+//               },
+//             ),
+//           );
+//         },
+//         childCount: 20,
+//       ),
+//     );
+//   }
+// }
+
+class JoyStick extends StatefulWidget {
+  @override
+  _JoyStickState createState() => _JoyStickState();
+}
+
+class _JoyStickState extends State<JoyStick> {
+  late Offset offset, smallCircleOffset;
+  @override
+  void initState() {
+    offset = Offset(50, 50);
+    smallCircleOffset = offset;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: 100.0,
+          width: 100.0,
+          color: Colors.lightBlue,
+          // height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+        ),
+        CustomPaint(
+          painter: Painter(false, this.offset, false),
+          child: CustomPaint(
+            painter: Painter(true, smallCircleOffset, (true)),
+          ),
+        ),
+        GestureDetector(
+          onPanEnd: (details) {
+            setState(() {
+              smallCircleOffset = offset;
+            });
+          },
+          onPanUpdate: (details) {
+            if (Offset(smallCircleOffset.dx - 50, smallCircleOffset.dy - 50)
+                    .distance <
+                50) {
+              // if (smallCircleOffset.distance < 50) {
+              setState(() {
+                RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+                smallCircleOffset =
+                    renderBox!.globalToLocal(details.globalPosition);
+              });
+            } else {
+              setState(() {
+                RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+                smallCircleOffset =
+                    renderBox!.globalToLocal(details.globalPosition);
+              });
+            }
+            // setState(
+            //   () {
+            //     RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+            //     smallCircleOffset =
+            //         renderBox!.globalToLocal(details.globalPosition);
+            //   },
+            // );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class Painter extends CustomPainter {
+  final bool needsRepaint, isInBoundary;
+  final Offset offset;
+  Painter(this.needsRepaint, this.offset, this.isInBoundary);
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (needsRepaint && isInBoundary) {
+      print(
+          "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
+      canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
+    } else {
+      canvas.drawCircle(this.offset, 50, Paint()..color = Colors.black);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return (needsRepaint && isInBoundary) ? true : false;
   }
 }
