@@ -32,6 +32,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  bool islive = true;
   String _volt = "-1";
   Future fetchVolt() async {
     final response = await http.get(Uri.parse('http://172.24.8.23:8080/volt'));
@@ -65,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initState() {
     super.initState();
-    // voltTimer();
+    voltTimer();
   }
 
   @override
@@ -77,9 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Mjpeg(
+                isLive: islive,
                 stream:
-                    'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
-                // 'http://172.24.8.23:8080/video_feed',
+                    // 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
+                    'http://172.24.8.23:8080/video_feed',
                 error: (context, error, stack) {
                   print(error);
                   print(stack);
@@ -87,24 +89,184 @@ class _MyHomePageState extends State<MyHomePage> {
                       style: TextStyle(color: Colors.red));
                 },
               ),
-              Text(
-                '$_volt',
-                style: Theme.of(context).textTheme.headline4,
-              ),
-              Text(
-                '$_counter',
-                style: Theme.of(context).textTheme.headline4,
-              ),
+              // Text(
+              //   '$_volt',
+              //   style: Theme.of(context).textTheme.headline4,
+              // ),
+              // Text(
+              //   '$_counter',
+              //   style: Theme.of(context).textTheme.headline4,
+              // ),
             ],
+          ),
+        ),
+        new Positioned(
+          top: 50,
+          left: 0,
+          child: Text(
+            'Volt: $_volt',
+            style:
+                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 17),
           ),
         ),
         new Positioned(
           bottom: 50,
           height: 100,
           width: 100,
-          left: 100,
+          left: 0,
           child: JoyStick(),
-        )
+        ),
+        new Positioned(
+          bottom: 50,
+          right: 0,
+          height: 100,
+          width: 100,
+          child: JoyStick(),
+        ),
+        new Positioned(
+            bottom: 160,
+            height: 100,
+            width: 100,
+            right: 100,
+            child: Material(
+              color: Colors.white.withOpacity(0),
+              child: Center(
+                child: Ink(
+                  decoration: const ShapeDecoration(
+                    color: Colors.lightBlue,
+                    shape: CircleBorder(),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.android),
+                    color: Colors.white,
+                    onPressed: () {
+                      http.get(
+                          Uri.parse('http://172.24.8.23:8080/?method=forward'));
+                    },
+                  ),
+                ),
+              ),
+            )),
+        new Positioned(
+          bottom: 100,
+          right: 190,
+          height: 100,
+          width: 100,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.android),
+                  color: Colors.white,
+                  onPressed: () {
+                    http.get(Uri.parse('http://172.24.8.23:8080/volt'));
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        new Positioned(
+          bottom: 10,
+          right: 200,
+          height: 100,
+          width: 100,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.android),
+                  color: Colors.white,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+        new Positioned(
+            bottom: 170,
+            right: 170,
+            height: 100,
+            width: 100,
+            child: Material(
+              color: Colors.white.withOpacity(0),
+              child: Center(
+                child: Ink(
+                  decoration: const ShapeDecoration(
+                    color: Colors.lightBlue,
+                    shape: CircleBorder(),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.android),
+                    color: Colors.white,
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            )),
+        new Positioned(
+          bottom: 70,
+          right: 260,
+          height: 100,
+          width: 100,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.android),
+                  color: Colors.white,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+        new Positioned(
+          top: 30,
+          right: 350,
+          height: 100,
+          width: 100,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.android),
+                  color: Colors.yellow,
+                  onPressed: () {
+                    setState(() {
+                      islive = !islive;
+                    });
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+        // Button(
+        //   func: () {
+        //     http.get(Uri.parse('http://172.24.8.23:8080/volt'));
+        //   },
+        // )
       ],
     );
     //   floatingActionButton: FloatingActionButton(
@@ -163,6 +325,49 @@ class _MyHomePageState extends State<MyHomePage> {
 //   }
 // }
 
+class Button extends StatefulWidget {
+  var top, button, right, left, func;
+  Button({this.top, this.button, this.right, this.left, this.func});
+  @override
+  _Button createState() => _Button();
+}
+
+class _Button extends State<Button> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          right: widget.right,
+          height: 100,
+          width: 100,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.android),
+                  color: Colors.white,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class JoyStick extends StatefulWidget {
   @override
   _JoyStickState createState() => _JoyStickState();
@@ -184,7 +389,7 @@ class _JoyStickState extends State<JoyStick> {
         Container(
           height: 100.0,
           width: 100.0,
-          color: Colors.lightBlue,
+          // color: Colors.lightBlue,
           // height: MediaQuery.of(context).size.height,
           // width: MediaQuery.of(context).size.width,
         ),
@@ -242,7 +447,7 @@ class Painter extends CustomPainter {
           "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
       canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
     } else {
-      canvas.drawCircle(this.offset, 50, Paint()..color = Colors.black);
+      canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
     }
   }
 
