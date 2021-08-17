@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:app/my_flutter_app_icons.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -131,178 +133,43 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 100,
           child: JoyStick(),
         ),
-        new Positioned(
-            bottom: 160,
-            height: 100,
-            width: 100,
-            right: 100,
-            child: Material(
-              color: Colors.white.withOpacity(0),
-              child: Center(
-                child: Ink(
-                  decoration: const ShapeDecoration(
-                    color: Colors.black,
-                    shape: CircleBorder(),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.android),
-                    color: Colors.white,
-                    onPressed: () async {
-                      try {
-                        await http.get(Uri.parse(
-                            'http://172.24.8.23:8080/?method=forward'));
-                      } catch (e) {
-                        print(e);
-                      }
-                    },
-                  ),
-                ),
-              ),
-            )),
-        new Positioned(
-          bottom: 100,
-          right: 190,
-          height: 100,
-          width: 100,
-          child: Material(
-            color: Colors.white.withOpacity(0),
-            child: Center(
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.brown,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.android),
-                  color: Colors.white,
-                  onPressed: () async {
-                    try {
-                      await http.get(Uri.parse('http://172.24.8.23:8080/volt'));
-                    } catch (e) {
-                      print(e);
-                    }
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-        new Positioned(
-          bottom: 10,
-          right: 200,
-          height: 100,
-          width: 100,
-          child: Material(
-            color: Colors.white.withOpacity(0),
-            child: Center(
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.green,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.android),
-                  color: Colors.white,
-                  onPressed: () {
-                    setState(() {
-                      uriVideo = 'http://172.24.8.23:8080/video_feed';
-                    });
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
-        new Positioned(
-            bottom: 170,
-            right: 170,
-            height: 100,
-            width: 100,
-            child: Material(
-              color: Colors.white.withOpacity(0),
-              child: Center(
-                child: Ink(
-                  decoration: const ShapeDecoration(
-                    color: Colors.cyan,
-                    shape: CircleBorder(),
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.android),
-                    color: Colors.white,
-                    onPressed: () {
-                      setState(() {
-                        uriVideo =
-                            'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER';
-                      });
-                    },
-                  ),
-                ),
-              ),
-            )),
-        new Positioned(
-          bottom: 70,
-          right: 260,
-          height: 100,
-          width: 100,
-          child: Material(
-            color: Colors.white.withOpacity(0),
-            child: Center(
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.lightBlue,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.android),
-                  color: Colors.white,
-                  onPressed: () {},
-                ),
-              ),
-            ),
-          ),
-        ),
-        new Positioned(
-          top: 30,
-          right: 350,
-          height: 100,
-          width: 100,
-          child: Material(
-            color: Colors.white.withOpacity(0),
-            child: Center(
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.lightBlue,
-                  shape: CircleBorder(),
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.android),
-                  color: Colors.yellow,
-                  onPressed: () async {
-                    setState(() {
-                      islive = false;
-                    });
-                    await Future.delayed(Duration(seconds: 1));
-                    setState(() {
-                      islive = true;
-                    });
-                  },
-                ),
-              ),
-            ),
-          ),
-        ),
         // togle for charge
         Button(
           icon: Icon(Icons.bolt),
           inkColor: istoggle ? Colors.lightBlue : Colors.amber,
           bottom: 200,
           right: 10,
-          func: () {
+          func: () async {
             setState(() {
               istoggle = !istoggle;
             });
+            try {
+              istoggle == true
+                  ? await http
+                      .post(Uri.parse('http://172.24.8.23:8080/?method=re'))
+                  : await http.post(
+                      Uri.parse('http://172.24.8.23:8080/?method=re stop'));
+            } catch (e) {
+              print(e);
+            }
           },
         ),
+        // togle for charge
+        Button(
+          icon: Icon(MyFlutterApp.rifle),
+          inkColor: Colors.lightBlue,
+          bottom: 180,
+          right: 100,
+          func: () async {
+            try {
+              await http
+                  .post(Uri.parse('http://172.24.8.23:8080/?method=shoot'));
+            } catch (e) {
+              print(e);
+            }
+          },
+        ),
+        //setting dialog
         Button(
           icon: Icon(Icons.settings),
           inkColor: Colors.lightBlue,
@@ -345,7 +212,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 islive = true;
               });
             },
-          ))
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'swtich view (for test)',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () async {
+              setState(() {
+                uriVideo = uriVideo == 'http://172.24.8.23:8080/video_feed'
+                    ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
+                    : 'http://172.24.8.23:8080/video_feed';
+              });
+            },
+          )),
         ]));
       },
     );
@@ -491,7 +372,14 @@ class Painter extends CustomPainter {
       //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
       canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
     } else {
+      // canvas.drawLine(
+      //     Offset(0, 50),
+      //     Offset(50, 50),
+      //     Paint()
+      //       ..color = Colors.grey
+      //       ..strokeWidth = 20);
       canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
+      // canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
     }
   }
 
