@@ -31,20 +31,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  // int _counter = 0;
   bool islive = true;
+  bool istoggle = true;
+  String uriVideo = 'http://172.24.8.23:8080/video_feed';
   String _volt = "-1";
   Future fetchVolt() async {
-    final response = await http.get(Uri.parse('http://172.24.8.23:8080/volt'));
+    try {
+      final response =
+          await http.get(Uri.parse('http://172.24.8.23:8080/volt'));
 
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      return response.body;
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load');
+      if (response.statusCode == 200) {
+        // If the server did return a 200 OK response,
+        // then parse the JSON.
+        return response.body;
+      } else {
+        // If the server did not return a 200 OK response,
+        // then throw an exception.
+        throw Exception('Failed to load');
+      }
+    } catch (e) {
+      print(e);
     }
   }
 
@@ -81,7 +88,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 isLive: islive,
                 stream:
                     // 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
-                    'http://172.24.8.23:8080/video_feed',
+                    // 'http://172.24.8.23:8080/video_feed',
+                    uriVideo,
                 error: (context, error, stack) {
                   print(error);
                   print(stack);
@@ -133,15 +141,19 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Center(
                 child: Ink(
                   decoration: const ShapeDecoration(
-                    color: Colors.lightBlue,
+                    color: Colors.black,
                     shape: CircleBorder(),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.android),
                     color: Colors.white,
-                    onPressed: () {
-                      http.get(
-                          Uri.parse('http://172.24.8.23:8080/?method=forward'));
+                    onPressed: () async {
+                      try {
+                        await http.get(Uri.parse(
+                            'http://172.24.8.23:8080/?method=forward'));
+                      } catch (e) {
+                        print(e);
+                      }
                     },
                   ),
                 ),
@@ -157,14 +169,18 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Center(
               child: Ink(
                 decoration: const ShapeDecoration(
-                  color: Colors.lightBlue,
+                  color: Colors.brown,
                   shape: CircleBorder(),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.android),
                   color: Colors.white,
-                  onPressed: () {
-                    http.get(Uri.parse('http://172.24.8.23:8080/volt'));
+                  onPressed: () async {
+                    try {
+                      await http.get(Uri.parse('http://172.24.8.23:8080/volt'));
+                    } catch (e) {
+                      print(e);
+                    }
                   },
                 ),
               ),
@@ -181,13 +197,17 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Center(
               child: Ink(
                 decoration: const ShapeDecoration(
-                  color: Colors.lightBlue,
+                  color: Colors.green,
                   shape: CircleBorder(),
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.android),
                   color: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      uriVideo = 'http://172.24.8.23:8080/video_feed';
+                    });
+                  },
                 ),
               ),
             ),
@@ -203,13 +223,18 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Center(
                 child: Ink(
                   decoration: const ShapeDecoration(
-                    color: Colors.lightBlue,
+                    color: Colors.cyan,
                     shape: CircleBorder(),
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.android),
                     color: Colors.white,
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        uriVideo =
+                            'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER';
+                      });
+                    },
                   ),
                 ),
               ),
@@ -252,9 +277,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: IconButton(
                   icon: const Icon(Icons.android),
                   color: Colors.yellow,
-                  onPressed: () {
+                  onPressed: () async {
                     setState(() {
-                      islive = !islive;
+                      islive = false;
+                    });
+                    await Future.delayed(Duration(seconds: 1));
+                    setState(() {
+                      islive = true;
                     });
                   },
                 ),
@@ -262,72 +291,79 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-        // Button(
-        //   func: () {
-        //     http.get(Uri.parse('http://172.24.8.23:8080/volt'));
-        //   },
-        // )
+        // togle for charge
+        Button(
+          icon: Icon(Icons.bolt),
+          inkColor: istoggle ? Colors.lightBlue : Colors.amber,
+          bottom: 200,
+          right: 10,
+          func: () {
+            setState(() {
+              istoggle = !istoggle;
+            });
+          },
+        ),
+        Button(
+          icon: Icon(Icons.settings),
+          inkColor: Colors.lightBlue,
+          top: 10,
+          right: 10,
+          func: () {
+            _showMyDialog();
+          },
+        ),
       ],
     );
-    //   floatingActionButton: FloatingActionButton(
-    //     onPressed: _incrementCounter,
-    //     tooltip: 'Increment',
-    //     child: Icon(Icons.add),
-    //   ), // This trailing comma makes auto-formatting nicer for build methods.
-    // );
+  }
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return Container(
+            child: Column(children: <Widget>[
+          Expanded(
+              child: Button(
+            icon: Icon(Icons.arrow_back),
+            func: () {
+              Navigator.pop(context);
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'refresh view',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () async {
+              setState(() {
+                islive = false;
+              });
+              await Future.delayed(Duration(seconds: 1));
+              setState(() {
+                islive = true;
+              });
+            },
+          ))
+        ]));
+      },
+    );
   }
 }
-// class moveButton extends StatefulWidget {
-//   @override
-//   _moveButtonState createState() => _moveButtonState();
-// }
 
-// class _moveButtonState extends State<moveButton> {
-//   @override
-//   Color _color = Colors.white;
-//   bool isRunning = true;
-//   Widget build(BuildContext context) {
-//     return SliverGrid(
-//       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-//         maxCrossAxisExtent: 200.0,
-//         mainAxisSpacing: 10.0,
-//         crossAxisSpacing: 10.0,
-//         childAspectRatio: 4.0,
-//       ),
-//       delegate: SliverChildBuilderDelegate(
-//         (BuildContext context, int index) {
-//           return Container(
-//             color: _color,
-//             height: 50.0,
-//             width: 50.0,
-//             child: GestureDetector(
-//               onTapDown: (TapDownDetails details) {
-//                 setState(() {
-//                   _color = Colors.yellow;
-//                 });
-//               },
-//               onTapUp: (TapUpDetails details) {
-//                 setState(() {
-//                   _color = Colors.blue;
-//                 });
-//               },
-//               onTapCancel: () {
-//                 setState(() {
-//                   _color = Colors.white;
-//                 });
-//               },
-//             ),
-//           );
-//         },
-//         childCount: 20,
-//       ),
-//     );
-//   }
-// }
-
+// ignore: must_be_immutable
 class Button extends StatefulWidget {
-  var top, button, right, left, func;
-  Button({this.top, this.button, this.right, this.left, this.func});
+  var top, bottom, right, left, icon, func, inkColor, buttonColor;
+  Button(
+      {this.top,
+      this.bottom,
+      this.right,
+      this.left,
+      this.func,
+      this.icon,
+      this.inkColor = Colors.lightBlue,
+      this.buttonColor = Colors.white});
   @override
   _Button createState() => _Button();
 }
@@ -343,21 +379,29 @@ class _Button extends State<Button> {
     return Stack(
       children: <Widget>[
         Positioned(
-          right: widget.right,
-          height: 100,
-          width: 100,
+          top: widget.top == null ? null : widget.top.toDouble(),
+          bottom: widget.bottom == null ? null : widget.bottom.toDouble(),
+          left: widget.left == null ? null : widget.left.toDouble(),
+          right: widget.right == null ? null : widget.right.toDouble(),
+          height: 50,
+          width: 50,
           child: Material(
             color: Colors.white.withOpacity(0),
             child: Center(
               child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.lightBlue,
+                decoration: ShapeDecoration(
+                  color: widget.inkColor,
                   shape: CircleBorder(),
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.android),
+                  icon: widget.icon == null ? Icon(Icons.android) : widget.icon,
                   color: Colors.white,
-                  onPressed: () {},
+                  onPressed: () {
+                    widget.func();
+                    // try {
+                    //   widget.func;
+                    // } catch (e) {}
+                  },
                 ),
               ),
             ),
@@ -443,8 +487,8 @@ class Painter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (needsRepaint && isInBoundary) {
-      print(
-          "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
+      // print(
+      //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
       canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
     } else {
       canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
