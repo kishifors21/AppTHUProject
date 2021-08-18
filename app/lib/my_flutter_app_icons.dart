@@ -25,7 +25,6 @@ class MyFlutterApp {
   static const _kFontFam = 'MyFlutterApp';
   static const String? _kFontPkg = null;
 
-  static const IconData bullets = IconData(0xe94d, fontFamily: _kFontFam, fontPackage: _kFontPkg);
+  static const IconData circular_shield = IconData(0xe967, fontFamily: _kFontFam, fontPackage: _kFontPkg);
   static const IconData rifle = IconData(0xea82, fontFamily: _kFontFam, fontPackage: _kFontPkg);
-  static const IconData shotgun_shell = IconData(0xea9a, fontFamily: _kFontFam, fontPackage: _kFontPkg);
 }

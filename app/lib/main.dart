@@ -35,7 +35,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // int _counter = 0;
   bool islive = true;
-  bool istoggle = true;
+  bool isChargeToggle = true, isTrackerToggle = true;
   String uriVideo = 'http://172.24.8.23:8080/video_feed';
   String _volt = "-1";
   Future fetchVolt() async {
@@ -123,28 +123,28 @@ class _MyHomePageState extends State<MyHomePage> {
           bottom: 50,
           height: 100,
           width: 100,
-          left: 0,
+          left: 30,
           child: JoyStick(),
         ),
         new Positioned(
           bottom: 50,
-          right: 0,
+          right: 30,
           height: 100,
           width: 100,
-          child: JoyStick(),
+          child: singleAxisJoyStick(),
         ),
         // togle for charge
         Button(
           icon: Icon(Icons.bolt),
-          inkColor: istoggle ? Colors.lightBlue : Colors.amber,
-          bottom: 200,
-          right: 10,
+          inkColor: isChargeToggle ? Colors.lightBlue : Colors.amber,
+          bottom: 150,
+          right: 20,
           func: () async {
             setState(() {
-              istoggle = !istoggle;
+              isChargeToggle = !isChargeToggle;
             });
             try {
-              istoggle == true
+              isChargeToggle == true
                   ? await http
                       .post(Uri.parse('http://172.24.8.23:8080/?method=re'))
                   : await http.post(
@@ -154,12 +154,33 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
         ),
-        // togle for charge
+        // togle for tracker
+        Button(
+          icon: Icon(MyFlutterApp.circular_shield),
+          inkColor: isTrackerToggle ? Colors.lightBlue : Colors.amber,
+          bottom: 200,
+          right: 20,
+          func: () async {
+            setState(() {
+              isTrackerToggle = !isTrackerToggle;
+            });
+            try {
+              isTrackerToggle == true
+                  ? await http
+                      .post(Uri.parse('http://172.24.8.23:8080/?method=re'))
+                  : await http.post(
+                      Uri.parse('http://172.24.8.23:8080/?method=re stop'));
+            } catch (e) {
+              print(e);
+            }
+          },
+        ),
+        // shoot
         Button(
           icon: Icon(MyFlutterApp.rifle),
           inkColor: Colors.lightBlue,
-          bottom: 180,
-          right: 100,
+          bottom: 170,
+          right: 80,
           func: () async {
             try {
               await http
@@ -191,12 +212,18 @@ class _MyHomePageState extends State<MyHomePage> {
         return Container(
             child: Column(children: <Widget>[
           Expanded(
-              child: Button(
-            icon: Icon(Icons.arrow_back),
-            func: () {
-              Navigator.pop(context);
-            },
-          )),
+              child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    height: 50,
+                    width: 50,
+                    child: Button(
+                      icon: Icon(Icons.arrow_back),
+                      func: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ))),
           Expanded(
               child: GestureDetector(
             child: Text(
@@ -302,7 +329,7 @@ class _JoyStickState extends State<JoyStick> {
   late Offset offset, smallCircleOffset;
   @override
   void initState() {
-    offset = Offset(50, 50);
+    offset = Offset(0, 0);
     smallCircleOffset = offset;
     super.initState();
   }
@@ -318,10 +345,14 @@ class _JoyStickState extends State<JoyStick> {
           // height: MediaQuery.of(context).size.height,
           // width: MediaQuery.of(context).size.width,
         ),
-        CustomPaint(
-          painter: Painter(false, this.offset, false),
+        Positioned(
+          top: 50,
+          left: 50,
           child: CustomPaint(
-            painter: Painter(true, smallCircleOffset, (true)),
+            painter: Painter(false, this.offset, false),
+            child: CustomPaint(
+              painter: Painter(true, smallCircleOffset, (true)),
+            ),
           ),
         ),
         GestureDetector(
@@ -331,20 +362,20 @@ class _JoyStickState extends State<JoyStick> {
             });
           },
           onPanUpdate: (details) {
-            if (Offset(smallCircleOffset.dx - 50, smallCircleOffset.dy - 50)
-                    .distance <
-                50) {
+            RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+            Offset tmpOfsset = renderBox!.globalToLocal(details.globalPosition);
+            tmpOfsset = Offset(tmpOfsset.dx - 50, tmpOfsset.dy - 50);
+
+            if (tmpOfsset.distance < 50) {
               // if (smallCircleOffset.distance < 50) {
               setState(() {
-                RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-                smallCircleOffset =
-                    renderBox!.globalToLocal(details.globalPosition);
+                smallCircleOffset = tmpOfsset;
               });
             } else {
               setState(() {
-                RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-                smallCircleOffset =
-                    renderBox!.globalToLocal(details.globalPosition);
+                smallCircleOffset = Offset(
+                    tmpOfsset.dx * 50 / tmpOfsset.distance,
+                    tmpOfsset.dy * 50 / tmpOfsset.distance);
               });
             }
             // setState(
@@ -379,7 +410,104 @@ class Painter extends CustomPainter {
       //       ..color = Colors.grey
       //       ..strokeWidth = 20);
       canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return (needsRepaint && isInBoundary) ? true : false;
+  }
+}
+
+class singleAxisJoyStick extends StatefulWidget {
+  @override
+  _singleAxisJoyStickState createState() => _singleAxisJoyStickState();
+}
+
+class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
+  late Offset offset, smallCircleOffset;
+  @override
+  void initState() {
+    offset = Offset(0, 0);
+    smallCircleOffset = offset;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Container(
+          height: 100.0,
+          width: 100.0,
+          // color: Colors.lightBlue,
+          // height: MediaQuery.of(context).size.height,
+          // width: MediaQuery.of(context).size.width,
+        ),
+        Positioned(
+          top: 50,
+          left: 50,
+          child: CustomPaint(
+            painter: singleAxisPainter(false, this.offset, false),
+            child: CustomPaint(
+              painter: singleAxisPainter(true, smallCircleOffset, (true)),
+            ),
+          ),
+        ),
+        GestureDetector(
+          onPanEnd: (details) {
+            setState(() {
+              smallCircleOffset = offset;
+            });
+          },
+          onPanUpdate: (details) {
+            RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+            Offset tmpOfsset = renderBox!.globalToLocal(details.globalPosition);
+            tmpOfsset = Offset(tmpOfsset.dx - 50, tmpOfsset.dy - 50);
+
+            if (tmpOfsset.distance < 50) {
+              // if (smallCircleOffset.distance < 50) {
+              setState(() {
+                smallCircleOffset = Offset(tmpOfsset.dx, 0);
+              });
+            } else {
+              setState(() {
+                smallCircleOffset =
+                    Offset(tmpOfsset.dx * 50 / tmpOfsset.distance, 0);
+              });
+            }
+            // setState(
+            //   () {
+            //     RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+            //     smallCircleOffset =
+            //         renderBox!.globalToLocal(details.globalPosition);
+            //   },
+            // );
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class singleAxisPainter extends CustomPainter {
+  final bool needsRepaint, isInBoundary;
+  final Offset offset;
+  singleAxisPainter(this.needsRepaint, this.offset, this.isInBoundary);
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (needsRepaint && isInBoundary) {
+      // print(
+      //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
+      canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
+    } else {
       // canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
+      canvas.drawLine(
+          Offset(-50, 0),
+          Offset(50, 0),
+          Paint()
+            ..color = Colors.grey
+            ..strokeWidth = 20);
     }
   }
 
