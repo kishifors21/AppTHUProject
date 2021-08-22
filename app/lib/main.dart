@@ -88,16 +88,17 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               Mjpeg(
                 isLive: islive,
+                error: (context, error, stack) {
+                  print(error);
+                  print(stack);
+
+                  return Text(error.toString(),
+                      style: TextStyle(color: Colors.red));
+                },
                 stream:
                     // 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER',
                     // 'http://172.24.8.23:8080/video_feed',
                     uriVideo,
-                error: (context, error, stack) {
-                  print(error);
-                  print(stack);
-                  return Text(error.toString(),
-                      style: TextStyle(color: Colors.red));
-                },
               ),
               // Text(
               //   '$_volt',
@@ -111,14 +112,24 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         new Positioned(
-          top: 50,
-          left: 0,
-          child: Text(
-            'Volt: $_volt',
-            style:
-                TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 17),
-          ),
-        ),
+            top: 30,
+            left: 0,
+            child: Container(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  'Volt: $_volt',
+                  style: TextStyle(
+                    color: Colors.cyan.shade100.withOpacity(0.9),
+                    fontSize: 17,
+                    decorationColor: Colors.white.withOpacity(0),
+                  ),
+                ),
+                // color: Colors.blueGrey.shade700.withOpacity(0.5),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(3.0),
+                  color: Colors.blueGrey.shade600.withOpacity(0.6),
+                ))),
         new Positioned(
           bottom: 50,
           height: 100,
@@ -401,15 +412,29 @@ class Painter extends CustomPainter {
     if (needsRepaint && isInBoundary) {
       // print(
       //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
-      canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
+      canvas.drawCircle(this.offset, 20,
+          Paint()..color = Colors.cyan.shade200.withOpacity(0.6));
+      canvas.drawCircle(
+          this.offset,
+          20,
+          Paint()
+            ..color = Colors.cyan.shade500.withOpacity(0.6)
+            ..strokeWidth = 3
+            ..style = PaintingStyle.stroke);
     } else {
-      // canvas.drawLine(
-      //     Offset(0, 50),
-      //     Offset(50, 50),
-      //     Paint()
-      //       ..color = Colors.grey
-      //       ..strokeWidth = 20);
-      canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
+      canvas.drawCircle(
+          this.offset,
+          50,
+          Paint()
+            // ..blendMode = BlendMode.overlay
+            ..color = Colors.blueGrey.shade600.withOpacity(0.5));
+      canvas.drawCircle(
+          this.offset,
+          50,
+          Paint()
+            ..color = Colors.white.withOpacity(0.5)
+            ..strokeWidth = 3
+            ..style = PaintingStyle.stroke);
     }
   }
 
@@ -499,15 +524,57 @@ class singleAxisPainter extends CustomPainter {
     if (needsRepaint && isInBoundary) {
       // print(
       //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
-      canvas.drawCircle(this.offset, 20, Paint()..color = Colors.amber);
+      // canvas.drawCircle(this.offset, 20,
+      //     Paint()..color = Colors.cyan.shade200.withOpacity(0.7));
+      canvas.drawRRect(
+          RRect.fromRectAndCorners(
+            Offset(this.offset.dx - 7.5, this.offset.dy - 12.5) &
+                Size(15.0, 25.0),
+            topRight: Radius.circular(3),
+            bottomRight: Radius.circular(3),
+            topLeft: Radius.circular(3),
+            bottomLeft: Radius.circular(3),
+          ),
+          Paint()..color = Colors.cyan.shade200.withOpacity(0.6));
+      canvas.drawRRect(
+          RRect.fromRectAndCorners(
+              Offset(this.offset.dx - 7.5, this.offset.dy - 12.5) &
+                  Size(15.0, 25.0),
+              topRight: Radius.circular(3),
+              bottomRight: Radius.circular(3),
+              topLeft: Radius.circular(3),
+              bottomLeft: Radius.circular(3)),
+          Paint()
+            ..color = Colors.cyan.shade500.withOpacity(0.6)
+            ..strokeWidth = 2
+            ..style = PaintingStyle.stroke);
     } else {
       // canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
-      canvas.drawLine(
-          Offset(-50, 0),
-          Offset(50, 0),
+      // canvas.drawLine(
+      //     Offset(-50, 0),
+      //     Offset(50, 0),
+      //     Paint()
+      //       ..color = Colors.grey.withOpacity(0.5)
+      //       ..strokeWidth = 20);
+      canvas.drawRRect(
+          RRect.fromRectAndCorners(
+            Offset(-50, -12.5) & Size(100.0, 25.0),
+            topRight: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+            topLeft: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+          ),
+          Paint()..color = Colors.blueGrey.shade600.withOpacity(0.6));
+      canvas.drawRRect(
+          RRect.fromRectAndCorners(Offset(-50, -12.5) & Size(100.0, 25.0),
+              topRight: Radius.circular(10),
+              bottomRight: Radius.circular(10),
+              topLeft: Radius.circular(10),
+              bottomLeft: Radius.circular(10)),
           Paint()
-            ..color = Colors.grey
-            ..strokeWidth = 20);
+            ..color = Colors.white.withOpacity(0.5)
+            ..strokeWidth = 2.5
+            ..style = PaintingStyle.stroke);
     }
   }
 
