@@ -157,9 +157,9 @@ class _MyHomePageState extends State<MyHomePage> {
             try {
               isChargeToggle == true
                   ? await http
-                      .post(Uri.parse('http://172.24.8.23:8080/?method=re'))
-                  : await http.post(
-                      Uri.parse('http://172.24.8.23:8080/?method=re stop'));
+                      .get(Uri.parse('http://172.24.8.23:8080/?method=re stop'))
+                  : await http
+                      .get(Uri.parse('http://172.24.8.23:8080/?method=re'));
             } catch (e) {
               print(e);
             }
@@ -178,8 +178,8 @@ class _MyHomePageState extends State<MyHomePage> {
             try {
               isTrackerToggle == true
                   ? await http
-                      .post(Uri.parse('http://172.24.8.23:8080/?method=re'))
-                  : await http.post(
+                      .get(Uri.parse('http://172.24.8.23:8080/?method=re'))
+                  : await http.get(
                       Uri.parse('http://172.24.8.23:8080/?method=re stop'));
             } catch (e) {
               print(e);
@@ -195,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
           func: () async {
             try {
               await http
-                  .post(Uri.parse('http://172.24.8.23:8080/?method=shoot'));
+                  .get(Uri.parse('http://172.24.8.23:8080/?method=shoot'));
             } catch (e) {
               print(e);
             }
