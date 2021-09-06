@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
@@ -37,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future fetchVolt() async {
     try {
-      final response = await http.get(Uri.parse(uri_ip + ':8080/volt'));
+      final response = await http.get(Uri.parse(uri_ip + 'volt'));
 
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
@@ -70,12 +71,12 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
   bool islive = true;
   bool isChargeToggle = true, isTrackerToggle = true;
-  String uri_ip = 'http://192.168.1.1';
+  String uri_ip = 'http://192.168.1.1:8080/';
   late String uriVideo;
   String _volt = "-1";
 
   void initState() {
-    uriVideo = uri_ip + ':8080/video_feed';
+    uriVideo = uri_ip + 'video_feed';
     super.initState();
     voltTimer();
   }
@@ -158,8 +159,8 @@ class _MyHomePageState extends State<MyHomePage> {
             });
             try {
               isChargeToggle == true
-                  ? await http.get(Uri.parse(uri_ip + ':8080/?method=re'))
-                  : await http.get(Uri.parse(uri_ip + ':8080/?method=re stop'));
+                  ? await http.get(Uri.parse(uri_ip + '?method=re'))
+                  : await http.get(Uri.parse(uri_ip + '?method=re stop'));
             } catch (e) {
               print(e);
             }
@@ -177,8 +178,8 @@ class _MyHomePageState extends State<MyHomePage> {
             });
             try {
               isTrackerToggle == true
-                  ? await http.get(Uri.parse(uri_ip + ':8080/?method=re'))
-                  : await http.get(Uri.parse(uri_ip + ':8080/?method=re stop'));
+                  ? await http.get(Uri.parse(uri_ip + '?method=re'))
+                  : await http.get(Uri.parse(uri_ip + '?method=re stop'));
             } catch (e) {
               print(e);
             }
@@ -192,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
           right: 80,
           func: () async {
             try {
-              await http.get(Uri.parse(uri_ip + ':8080/?method=shoot'));
+              await http.get(Uri.parse(uri_ip + '?method=shoot'));
             } catch (e) {
               print(e);
             }
@@ -256,9 +257,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () async {
               setState(() {
-                uriVideo = uriVideo == uri_ip + ':8080/video_feed'
+                uriVideo = uriVideo == uri_ip + 'video_feed'
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + ':8080/video_feed';
+                    : uri_ip + 'video_feed';
               });
             },
           )),
@@ -368,6 +369,15 @@ class _JoyStickState extends State<JoyStick> {
             setState(() {
               smallCircleOffset = offset;
             });
+            http.post(
+              Uri.parse('/wheels'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonEncode({
+                'x': 1,
+              }),
+            );
           },
           onPanUpdate: (details) {
             RenderBox? renderBox = context.findRenderObject() as RenderBox?;
