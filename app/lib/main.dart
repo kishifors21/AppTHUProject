@@ -64,6 +64,39 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void wheelsTimer() {
+    if (x > 0) {
+    } else if (x < 0) {
+    } else {
+      setState(() {
+        wheels = jsonEncode({'lf': y, 'rf': y, 'lb': y, 'rb': y});
+      });
+    }
+    http.post(
+      Uri.parse(uri_ip + 'wheels'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode({'start': 'begin', 'test': 1}),
+    );
+    Timer.periodic(Duration(milliseconds: 100), (timer) {
+      try {
+        http.post(
+          Uri.parse(uri_ip + 'wheels'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: wheels,
+        );
+      } catch (e) {}
+      // fetchVolt().then((value) => setState(() {
+      //       _volt = value;
+      //       // print(value);
+      //     }));
+      // print(timer.tick);
+    });
+  }
+
   // void _incrementCounter() {
   //   setState(() {
   //     _counter++;
@@ -71,14 +104,19 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
   bool islive = true;
   bool isChargeToggle = true, isTrackerToggle = true;
-  String uri_ip = 'http://192.168.1.1:8080/';
+  late var wheels;
+  // String uri_ip = 'http://192.168.1.1:8080/';
   late String uriVideo;
+  String uri_ip = 'http://192.168.1.1:8080/';
   String _volt = "-1";
+  var x = 0, y = 0, turn = 0;
 
   void initState() {
     uriVideo = uri_ip + 'video_feed';
+    wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
     super.initState();
     voltTimer();
+    // wheelsTimer();
   }
 
   @override
@@ -138,14 +176,23 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 100,
           width: 100,
           left: 30,
-          child: JoyStick(),
+          child: JoyStick(func: (var dx, var dy) {
+            setState(() {
+              x = dx;
+              y = dy;
+            });
+          }),
         ),
         new Positioned(
           bottom: 50,
           right: 30,
           height: 100,
           width: 100,
-          child: singleAxisJoyStick(),
+          child: singleAxisJoyStick(func: (var dx) {
+            setState(() {
+              turn = dx;
+            });
+          }),
         ),
         // togle for charge
         Button(
@@ -329,13 +376,19 @@ class _Button extends State<Button> {
   }
 }
 
+// ignore: must_be_immutable
 class JoyStick extends StatefulWidget {
+  var func;
+  JoyStick({
+    this.func,
+  });
   @override
   _JoyStickState createState() => _JoyStickState();
 }
 
 class _JoyStickState extends State<JoyStick> {
   late Offset offset, smallCircleOffset;
+
   @override
   void initState() {
     offset = Offset(0, 0);
@@ -369,15 +422,6 @@ class _JoyStickState extends State<JoyStick> {
             setState(() {
               smallCircleOffset = offset;
             });
-            http.post(
-              Uri.parse('/wheels'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-              },
-              body: jsonEncode({
-                'x': 1,
-              }),
-            );
           },
           onPanUpdate: (details) {
             RenderBox? renderBox = context.findRenderObject() as RenderBox?;
@@ -388,6 +432,7 @@ class _JoyStickState extends State<JoyStick> {
               // if (smallCircleOffset.distance < 50) {
               setState(() {
                 smallCircleOffset = tmpOfsset;
+                widget.func(tmpOfsset.dx, tmpOfsset.dy);
               });
             } else {
               setState(() {
@@ -395,6 +440,8 @@ class _JoyStickState extends State<JoyStick> {
                     tmpOfsset.dx * 50 / tmpOfsset.distance,
                     tmpOfsset.dy * 50 / tmpOfsset.distance);
               });
+              widget.func(tmpOfsset.dx * 50 / tmpOfsset.distance,
+                  tmpOfsset.dy * 50 / tmpOfsset.distance);
             }
             // setState(
             //   () {
@@ -451,7 +498,12 @@ class Painter extends CustomPainter {
   }
 }
 
+// ignore: must_be_immutable
 class singleAxisJoyStick extends StatefulWidget {
+  var func;
+  singleAxisJoyStick({
+    this.func,
+  });
   @override
   _singleAxisJoyStickState createState() => _singleAxisJoyStickState();
 }
@@ -502,6 +554,7 @@ class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
               setState(() {
                 smallCircleOffset = Offset(tmpOfsset.dx, 0);
               });
+              widget.func(tmpOfsset.dx);
             } else {
               setState(() {
                 smallCircleOffset =
