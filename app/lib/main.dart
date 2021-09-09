@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:app/my_flutter_app_icons.dart';
 
+import "dart:math" show pi;
+
 void main() {
   runApp(MyApp());
 }
@@ -36,10 +38,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // int _counter = 0;
 
-  Future fetchVolt() async {
+  fetchVolt() async {
     try {
       final response = await http.get(Uri.parse(uri_ip + 'volt'));
-
       if (response.statusCode == 200) {
         // If the server did return a 200 OK response,
         // then parse the JSON.
@@ -50,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
         throw Exception('Failed to load');
       }
     } catch (e) {
-      print(e);
+      // print(e);
     }
   }
 
@@ -65,21 +66,101 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void wheelsTimer() {
-    if (x > 0) {
-    } else if (x < 0) {
-    } else {
-      setState(() {
-        wheels = jsonEncode({'lf': y, 'rf': y, 'lb': y, 'rb': y});
-      });
-    }
-    http.post(
-      Uri.parse(uri_ip + 'wheels'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode({'start': 'begin', 'test': 1}),
-    );
+    try {
+      http.post(
+        Uri.parse(uri_ip + 'wheels'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'start': 'begin', 'test': 1}),
+      );
+    } catch (e) {}
     Timer.periodic(Duration(milliseconds: 100), (timer) {
+      print(direction);
+      // if (x == 0 && y == 0) {
+      //   setState(() {
+      //     wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
+      //   });
+      // } else if (x == 0) {
+      //   setState(() {
+      //     wheels = jsonEncode({'lf': y, 'rf': y, 'lb': y, 'rb': y});
+      //   });
+      // } else if (y == 0) {
+      //   setState(() {
+      //     wheels = jsonEncode({'lf': -x, 'rf': -x, 'lb': x, 'rb': x});
+      //   });
+      // } else if (x < 0) {
+      //   if (y > 0) {
+      //     setState(() {
+      //       wheels = jsonEncode(
+      //           {'lf': y, 'rf': y, 'lb': 2 * (x + 25), 'rb': 2 * (x + 25)});
+      //     });
+      //   } else if (y < 0) {
+      //     setState(() {
+      //       wheels = jsonEncode(
+      //           {'lf': -2 * (x + 25), 'rf': -2 * (x + 25), 'lb': y, 'rb': y});
+      //     });
+      //   }
+      // } else if (x > 0) {
+      //   if (y > 0) {
+      //     setState(() {
+      //       wheels = jsonEncode(
+      //           {'lf': -2 * (x - 25), 'rf': -2 * (x - 25), 'lb': y, 'rb': y});
+      //     });
+      //   } else if (y < 0) {
+      //     setState(() {
+      //       wheels = jsonEncode(
+      //           {'lf': y, 'rf': y, 'lb': 2 * (x - 25), 'rb': 2 * (x - 25)});
+      //     });
+      //   }
+      // }
+      if (speed == 0) {
+        setState(() {
+          wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
+        });
+      } else if (direction.abs == pi / 2 || direction.abs == pi) {
+        setState(() {
+          wheels =
+              jsonEncode({'lf': speed, 'rf': speed, 'lb': speed, 'rb': speed});
+        });
+      } else if (direction == 0 || direction.abs == pi) {
+        setState(() {
+          wheels = jsonEncode({
+            'lf': (direction.abs() / pi) * 2 - 1 * speed,
+            'rf': (direction.abs() / pi) * 2 - 1 * speed,
+            'lb': (direction.abs() / pi) * 2 - 1 * -speed,
+            'rb': (direction.abs() / pi) * 2 - 1 * -speed
+          });
+        });
+      } else if (pi / 2 < direction) {
+        setState(() {
+          wheels = jsonEncode({
+            'lf': speed,
+            'rf': speed,
+            'lb': ((direction - pi / 2 * 3) / pi * 2) * speed,
+            'rb': ((direction - pi / 2 * 3) / pi * 2) * speed
+          });
+        });
+      } else if (pi / 2 > direction && direction > 0) {
+        setState(() {
+          wheels = jsonEncode({
+            'lf': -speed,
+            'rf': -speed,
+            'lb': -((direction - pi / 2) / pi * 2) * speed,
+            'rb': -((direction - pi / 2) / pi * 2) * speed,
+          });
+        });
+      } else if (-pi / 2 < direction && direction < 0) {
+        setState(() {
+          wheels = jsonEncode({
+            'lf': -((direction - pi / 2 * 3) / pi * 2) * speed,
+            'rf': -((direction - pi / 2 * 3) / pi * 2) * speed,
+            'lb': -speed,
+            'rb': -speed
+          });
+        });
+      }
+
       try {
         http.post(
           Uri.parse(uri_ip + 'wheels'),
@@ -102,6 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //     _counter++;
   //   });
   // }
+  // declare variable
   bool islive = true;
   bool isChargeToggle = true, isTrackerToggle = true;
   late var wheels;
@@ -109,14 +191,15 @@ class _MyHomePageState extends State<MyHomePage> {
   late String uriVideo;
   String uri_ip = 'http://192.168.1.1:8080/';
   String _volt = "-1";
-  var x = 0, y = 0, turn = 0;
+  var x = 0.0, y = 0.0, turn = 0.0;
+  var speed = 0.0, direction = 0.0;
 
   void initState() {
     uriVideo = uri_ip + 'video_feed';
     wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
     super.initState();
     voltTimer();
-    // wheelsTimer();
+    wheelsTimer();
   }
 
   @override
@@ -130,8 +213,8 @@ class _MyHomePageState extends State<MyHomePage> {
               Mjpeg(
                 isLive: islive,
                 error: (context, error, stack) {
-                  print(error);
-                  print(stack);
+                  // print(error);
+                  // print(stack);
 
                   return Text(error.toString(),
                       style: TextStyle(color: Colors.red));
@@ -176,11 +259,15 @@ class _MyHomePageState extends State<MyHomePage> {
           height: 100,
           width: 100,
           left: 30,
-          child: JoyStick(func: (var dx, var dy) {
+          child: JoyStick(
+              func: (var joystickDistance, var joystickDirection) async {
             setState(() {
-              x = dx;
-              y = dy;
+              speed = joystickDistance * 4095 / 50;
+              direction = -joystickDirection;
+              // x = dx;
+              // y = dy;
             });
+            // print(direction);
           }),
         ),
         new Positioned(
@@ -188,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
           right: 30,
           height: 100,
           width: 100,
-          child: singleAxisJoyStick(func: (var dx) {
+          child: singleAxisJoyStick(func: (var dx) async {
             setState(() {
               turn = dx;
             });
@@ -209,7 +296,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ? await http.get(Uri.parse(uri_ip + '?method=re'))
                   : await http.get(Uri.parse(uri_ip + '?method=re stop'));
             } catch (e) {
-              print(e);
+              // print(e);
             }
           },
         ),
@@ -228,7 +315,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ? await http.get(Uri.parse(uri_ip + '?method=re'))
                   : await http.get(Uri.parse(uri_ip + '?method=re stop'));
             } catch (e) {
-              print(e);
+              // print(e);
             }
           },
         ),
@@ -242,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> {
             try {
               await http.get(Uri.parse(uri_ip + '?method=shoot'));
             } catch (e) {
-              print(e);
+              // print(e);
             }
           },
         ),
@@ -290,7 +377,7 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 islive = false;
               });
-              await Future.delayed(Duration(seconds: 1));
+              await Future.delayed(Duration(milliseconds: 100));
               setState(() {
                 islive = true;
               });
@@ -391,7 +478,7 @@ class _JoyStickState extends State<JoyStick> {
 
   @override
   void initState() {
-    offset = Offset(0, 0);
+    offset = Offset(0.0, 0.0);
     smallCircleOffset = offset;
     super.initState();
   }
@@ -422,26 +509,28 @@ class _JoyStickState extends State<JoyStick> {
             setState(() {
               smallCircleOffset = offset;
             });
+            widget.func(0.0, 0.0);
           },
           onPanUpdate: (details) {
             RenderBox? renderBox = context.findRenderObject() as RenderBox?;
             Offset tmpOfsset = renderBox!.globalToLocal(details.globalPosition);
-            tmpOfsset = Offset(tmpOfsset.dx - 50, tmpOfsset.dy - 50);
-
+            tmpOfsset = Offset(tmpOfsset.dx - 50.0, tmpOfsset.dy - 50.0);
+            // print(tmpOfsset.direction);
             if (tmpOfsset.distance < 50) {
               // if (smallCircleOffset.distance < 50) {
               setState(() {
                 smallCircleOffset = tmpOfsset;
-                widget.func(tmpOfsset.dx, tmpOfsset.dy);
+                widget.func(tmpOfsset.distance, tmpOfsset.direction);
               });
             } else {
               setState(() {
                 smallCircleOffset = Offset(
-                    tmpOfsset.dx * 50 / tmpOfsset.distance,
-                    tmpOfsset.dy * 50 / tmpOfsset.distance);
+                    tmpOfsset.dx * 50.0 / tmpOfsset.distance,
+                    tmpOfsset.dy * 50.0 / tmpOfsset.distance);
               });
-              widget.func(tmpOfsset.dx * 50 / tmpOfsset.distance,
-                  tmpOfsset.dy * 50 / tmpOfsset.distance);
+              // widget.func((tmpOfsset.dx * 50.0 / tmpOfsset.distance),
+              //     -(tmpOfsset.dy * 50.0 / tmpOfsset.distance));
+              widget.func(50, tmpOfsset.direction);
             }
             // setState(
             //   () {
