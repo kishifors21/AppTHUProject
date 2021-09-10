@@ -106,78 +106,38 @@ class _MyHomePageState extends State<MyHomePage> {
           'rb': speed,
         };
       } else if (direction == 0 || direction.abs == pi) {
-        // setState(() {
-        //   wheels = jsonEncode({
-        //     'lf': (direction.abs() / pi) * 2 - 1 * speed,
-        //     'rf': (direction.abs() / pi) * 2 - 1 * speed,
-        //     'lb': (direction.abs() / pi) * 2 - 1 * -speed,
-        //     'rb': (direction.abs() / pi) * 2 - 1 * -speed
-        //   });
-        // });
         wheels = {
           'lf': (direction.abs() / pi) * 2 - 1 * speed,
-          'rf': (direction.abs() / pi) * 2 - 1 * speed,
+          'rf': (direction.abs() / pi) * 2 - 1 * -speed,
           'lb': (direction.abs() / pi) * 2 - 1 * -speed,
-          'rb': (direction.abs() / pi) * 2 - 1 * -speed,
+          'rb': (direction.abs() / pi) * 2 - 1 * speed,
         };
       } else if (pi / 2 <= direction) {
-        // setState(() {
-        //   wheels = jsonEncode({
-        //     'lf': speed,
-        //     'rf': speed,
-        //     'lb': -((direction - pi / 4 * 3) / pi * 4) * speed,
-        //     'rb': -((direction - pi / 4 * 3) / pi * 4) * speed
-        //   });
-        // });
         wheels = {
-          'lf': speed,
+          'lf': -((direction - pi / 4 * 3) / pi * 4) * speed,
           'rf': speed,
-          'lb': -((direction - pi / 4 * 3) / pi * 4) * speed,
+          'lb': speed,
           'rb': -((direction - pi / 4 * 3) / pi * 4) * speed,
         };
       } else if (pi / 2 > direction && direction >= 0) {
-        // setState(() {
-        //   wheels = jsonEncode({
-        //     'lf': ((direction - pi / 4) / pi * 4) * speed,
-        //     'rf': ((direction - pi / 4) / pi * 4) * speed,
-        //     'lb': speed,
-        //     'rb': speed,
-        //   });
-        // });
         wheels = {
-          'lf': ((direction - pi / 4) / pi * 4) * speed,
+          'lf': speed,
           'rf': ((direction - pi / 4) / pi * 4) * speed,
-          'lb': speed,
+          'lb': ((direction - pi / 4) / pi * 4) * speed,
           'rb': speed,
         };
       } else if (-pi / 2 <= direction && direction <= 0) {
-        // setState(() {
-        //   wheels = jsonEncode({
-        //     'lf': -speed,
-        //     'rf': -speed,
-        //     'lb': ((direction + pi / 4) / pi * 4) * speed,
-        //     'rb': ((direction + pi / 4) / pi * 4) * speed,
-        //   });
-        // });
         wheels = {
-          'lf': -speed,
+          'lf': ((direction + pi / 4) / pi * 4) * speed,
           'rf': -speed,
-          'lb': ((direction + pi / 4) / pi * 4) * speed,
+          'lb': -speed,
           'rb': ((direction + pi / 4) / pi * 4) * speed,
         };
       } else if (-pi / 2 >= direction) {
-        // setState(() {
-        //   wheels = jsonEncode({
-        //     'lf': -((direction + pi / 4 * 3) / pi * 4) * speed,
-        //     'rf': -((direction + pi / 4 * 3) / pi * 4) * speed,
-        //     'lb': -speed,
-        //     'rb': -speed,
-        //   });
-        // });
         wheels = {
-          'lf': -((direction + pi / 4 * 3) / pi * 4) * speed,
+          'lf': -speed,
           'rf': -((direction + pi / 4 * 3) / pi * 4) * speed,
-          'lb': -speed,
+          'lb': -((direction + pi / 4 * 3) / pi * 4) * speed,
           'rb': -speed,
         };
       }
@@ -202,19 +162,9 @@ class _MyHomePageState extends State<MyHomePage> {
             },
             body: json.encode(wheels));
       } catch (e) {}
-      // fetchVolt().then((value) => setState(() {
-      //       _volt = value;
-      //       // print(value);
-      //     }));
-      // print(timer.tick);
     });
   }
 
-  // void _incrementCounter() {
-  //   setState(() {
-  //     _counter++;
-  //   });
-  // }
   // declare variable
   bool islive = true;
   bool isChargeToggle = true, isTrackerToggle = true;
