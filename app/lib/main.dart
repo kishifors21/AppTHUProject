@@ -76,99 +76,131 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     } catch (e) {}
     Timer.periodic(Duration(milliseconds: 100), (timer) {
-      print(direction);
-      // if (x == 0 && y == 0) {
-      //   setState(() {
-      //     wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
-      //   });
-      // } else if (x == 0) {
-      //   setState(() {
-      //     wheels = jsonEncode({'lf': y, 'rf': y, 'lb': y, 'rb': y});
-      //   });
-      // } else if (y == 0) {
-      //   setState(() {
-      //     wheels = jsonEncode({'lf': -x, 'rf': -x, 'lb': x, 'rb': x});
-      //   });
-      // } else if (x < 0) {
-      //   if (y > 0) {
-      //     setState(() {
-      //       wheels = jsonEncode(
-      //           {'lf': y, 'rf': y, 'lb': 2 * (x + 25), 'rb': 2 * (x + 25)});
-      //     });
-      //   } else if (y < 0) {
-      //     setState(() {
-      //       wheels = jsonEncode(
-      //           {'lf': -2 * (x + 25), 'rf': -2 * (x + 25), 'lb': y, 'rb': y});
-      //     });
-      //   }
-      // } else if (x > 0) {
-      //   if (y > 0) {
-      //     setState(() {
-      //       wheels = jsonEncode(
-      //           {'lf': -2 * (x - 25), 'rf': -2 * (x - 25), 'lb': y, 'rb': y});
-      //     });
-      //   } else if (y < 0) {
-      //     setState(() {
-      //       wheels = jsonEncode(
-      //           {'lf': y, 'rf': y, 'lb': 2 * (x - 25), 'rb': 2 * (x - 25)});
-      //     });
-      //   }
-      // }
+      // ignore: unused_local_variable
+      var lf, rf, lb, rb;
+      Map wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
       if (speed == 0) {
-        setState(() {
-          wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
-        });
+        // setState(() {
+        //   wheels =
+        //       jsonEncode({'lf': turn, 'rf': -turn, 'lb': turn, 'rb': -turn});
+        // });
+        // lf = turn;
+        // rf = -turn;
+        // lb = turn;
+        // rb = -turn;
+        wheels = {
+          'lf': 0.0,
+          'rf': 0.0,
+          'lb': 0.0,
+          'rb': 0.0,
+        };
       } else if (direction.abs == pi / 2 || direction.abs == pi) {
-        setState(() {
-          wheels =
-              jsonEncode({'lf': speed, 'rf': speed, 'lb': speed, 'rb': speed});
-        });
+        // setState(() {
+        //   wheels =
+        //       jsonEncode({'lf': speed, 'rf': speed, 'lb': speed, 'rb': speed});
+        // });
+        wheels = {
+          'lf': speed,
+          'rf': speed,
+          'lb': speed,
+          'rb': speed,
+        };
       } else if (direction == 0 || direction.abs == pi) {
-        setState(() {
-          wheels = jsonEncode({
-            'lf': (direction.abs() / pi) * 2 - 1 * speed,
-            'rf': (direction.abs() / pi) * 2 - 1 * speed,
-            'lb': (direction.abs() / pi) * 2 - 1 * -speed,
-            'rb': (direction.abs() / pi) * 2 - 1 * -speed
-          });
-        });
-      } else if (pi / 2 < direction) {
-        setState(() {
-          wheels = jsonEncode({
-            'lf': speed,
-            'rf': speed,
-            'lb': ((direction - pi / 2 * 3) / pi * 2) * speed,
-            'rb': ((direction - pi / 2 * 3) / pi * 2) * speed
-          });
-        });
-      } else if (pi / 2 > direction && direction > 0) {
-        setState(() {
-          wheels = jsonEncode({
-            'lf': -speed,
-            'rf': -speed,
-            'lb': -((direction - pi / 2) / pi * 2) * speed,
-            'rb': -((direction - pi / 2) / pi * 2) * speed,
-          });
-        });
-      } else if (-pi / 2 < direction && direction < 0) {
-        setState(() {
-          wheels = jsonEncode({
-            'lf': -((direction - pi / 2 * 3) / pi * 2) * speed,
-            'rf': -((direction - pi / 2 * 3) / pi * 2) * speed,
-            'lb': -speed,
-            'rb': -speed
-          });
-        });
+        // setState(() {
+        //   wheels = jsonEncode({
+        //     'lf': (direction.abs() / pi) * 2 - 1 * speed,
+        //     'rf': (direction.abs() / pi) * 2 - 1 * speed,
+        //     'lb': (direction.abs() / pi) * 2 - 1 * -speed,
+        //     'rb': (direction.abs() / pi) * 2 - 1 * -speed
+        //   });
+        // });
+        wheels = {
+          'lf': (direction.abs() / pi) * 2 - 1 * speed,
+          'rf': (direction.abs() / pi) * 2 - 1 * speed,
+          'lb': (direction.abs() / pi) * 2 - 1 * -speed,
+          'rb': (direction.abs() / pi) * 2 - 1 * -speed,
+        };
+      } else if (pi / 2 <= direction) {
+        // setState(() {
+        //   wheels = jsonEncode({
+        //     'lf': speed,
+        //     'rf': speed,
+        //     'lb': -((direction - pi / 4 * 3) / pi * 4) * speed,
+        //     'rb': -((direction - pi / 4 * 3) / pi * 4) * speed
+        //   });
+        // });
+        wheels = {
+          'lf': speed,
+          'rf': speed,
+          'lb': -((direction - pi / 4 * 3) / pi * 4) * speed,
+          'rb': -((direction - pi / 4 * 3) / pi * 4) * speed,
+        };
+      } else if (pi / 2 > direction && direction >= 0) {
+        // setState(() {
+        //   wheels = jsonEncode({
+        //     'lf': ((direction - pi / 4) / pi * 4) * speed,
+        //     'rf': ((direction - pi / 4) / pi * 4) * speed,
+        //     'lb': speed,
+        //     'rb': speed,
+        //   });
+        // });
+        wheels = {
+          'lf': ((direction - pi / 4) / pi * 4) * speed,
+          'rf': ((direction - pi / 4) / pi * 4) * speed,
+          'lb': speed,
+          'rb': speed,
+        };
+      } else if (-pi / 2 <= direction && direction <= 0) {
+        // setState(() {
+        //   wheels = jsonEncode({
+        //     'lf': -speed,
+        //     'rf': -speed,
+        //     'lb': ((direction + pi / 4) / pi * 4) * speed,
+        //     'rb': ((direction + pi / 4) / pi * 4) * speed,
+        //   });
+        // });
+        wheels = {
+          'lf': -speed,
+          'rf': -speed,
+          'lb': ((direction + pi / 4) / pi * 4) * speed,
+          'rb': ((direction + pi / 4) / pi * 4) * speed,
+        };
+      } else if (-pi / 2 >= direction) {
+        // setState(() {
+        //   wheels = jsonEncode({
+        //     'lf': -((direction + pi / 4 * 3) / pi * 4) * speed,
+        //     'rf': -((direction + pi / 4 * 3) / pi * 4) * speed,
+        //     'lb': -speed,
+        //     'rb': -speed,
+        //   });
+        // });
+        wheels = {
+          'lf': -((direction + pi / 4 * 3) / pi * 4) * speed,
+          'rf': -((direction + pi / 4 * 3) / pi * 4) * speed,
+          'lb': -speed,
+          'rb': -speed,
+        };
       }
-
+      print(wheels['lf']);
+      wheels = {
+        'lf': wheels['lf'] + turn,
+        'rf': wheels['rf'] - turn,
+        'lb': wheels['lb'] + turn,
+        'rb': wheels['rb'] - turn,
+      };
+      wheels.forEach((key, value) {
+        if (value > 4095) {
+          value = 4095.0;
+        } else if (value < -4095) {
+          value = -4095.0;
+        }
+      });
       try {
-        http.post(
-          Uri.parse(uri_ip + 'wheels'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: wheels,
-        );
+        http.post(Uri.parse(uri_ip + 'wheels'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+            },
+            body: json.encode(wheels));
       } catch (e) {}
       // fetchVolt().then((value) => setState(() {
       //       _volt = value;
@@ -186,7 +218,6 @@ class _MyHomePageState extends State<MyHomePage> {
   // declare variable
   bool islive = true;
   bool isChargeToggle = true, isTrackerToggle = true;
-  late var wheels;
   // String uri_ip = 'http://192.168.1.1:8080/';
   late String uriVideo;
   String uri_ip = 'http://192.168.1.1:8080/';
@@ -196,7 +227,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void initState() {
     uriVideo = uri_ip + 'video_feed';
-    wheels = jsonEncode({'lf': 0, 'rf': 0, 'lb': 0, 'rb': 0});
     super.initState();
     voltTimer();
     wheelsTimer();
@@ -224,14 +254,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     // 'http://172.24.8.23:8080/video_feed',
                     uriVideo,
               ),
-              // Text(
-              //   '$_volt',
-              //   style: Theme.of(context).textTheme.headline4,
-              // ),
-              // Text(
-              //   '$_counter',
-              //   style: Theme.of(context).textTheme.headline4,
-              // ),
             ],
           ),
         ),
@@ -263,6 +285,7 @@ class _MyHomePageState extends State<MyHomePage> {
               func: (var joystickDistance, var joystickDirection) async {
             setState(() {
               speed = joystickDistance * 4095 / 50;
+              // speed = 1.0;
               direction = -joystickDirection;
               // x = dx;
               // y = dy;
@@ -277,7 +300,7 @@ class _MyHomePageState extends State<MyHomePage> {
           width: 100,
           child: singleAxisJoyStick(func: (var dx) async {
             setState(() {
-              turn = dx;
+              turn = dx * 4095 / 50;
             });
           }),
         ),
@@ -632,6 +655,7 @@ class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
             setState(() {
               smallCircleOffset = offset;
             });
+            widget.func(0.0);
           },
           onPanUpdate: (details) {
             RenderBox? renderBox = context.findRenderObject() as RenderBox?;
