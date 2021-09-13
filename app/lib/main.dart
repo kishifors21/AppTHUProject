@@ -80,14 +80,6 @@ class _MyHomePageState extends State<MyHomePage> {
       var lf, rf, lb, rb;
       Map wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
       if (speed == 0) {
-        // setState(() {
-        //   wheels =
-        //       jsonEncode({'lf': turn, 'rf': -turn, 'lb': turn, 'rb': -turn});
-        // });
-        // lf = turn;
-        // rf = -turn;
-        // lb = turn;
-        // rb = -turn;
         wheels = {
           'lf': 0.0,
           'rf': 0.0,
@@ -95,10 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
           'rb': 0.0,
         };
       } else if (direction.abs == pi / 2 || direction.abs == pi) {
-        // setState(() {
-        //   wheels =
-        //       jsonEncode({'lf': speed, 'rf': speed, 'lb': speed, 'rb': speed});
-        // });
         wheels = {
           'lf': speed,
           'rf': speed,
