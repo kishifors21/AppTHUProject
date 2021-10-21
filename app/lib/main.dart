@@ -170,6 +170,22 @@ class _MyHomePageState extends State<MyHomePage> {
     wheelsTimer();
   }
 
+  void getCordinates(tack_sign) async {
+    try {
+      await http.post(
+        Uri.parse(uri_ip + 'image_roi'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(
+            <String, String>{'time_count': "1", 'track_sign': tack_sign}),
+      );
+    } catch (e) {
+      // print(e);
+    }
+    ;
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Stack(
@@ -272,9 +288,7 @@ class _MyHomePageState extends State<MyHomePage> {
               isTrackerToggle = !isTrackerToggle;
             });
             try {
-              isTrackerToggle == true
-                  ? await http.get(Uri.parse(uri_ip + '?method=re'))
-                  : await http.get(Uri.parse(uri_ip + '?method=re stop'));
+              isTrackerToggle == true ? getCordinates(1) : getCordinates(1);
             } catch (e) {
               // print(e);
             }
@@ -288,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> {
           right: 80,
           func: () async {
             try {
-              await http.get(Uri.parse(uri_ip + '?method=shoot'));
+              await http.get(Uri.parse(uri_ip + '?method=shot'));
             } catch (e) {
               // print(e);
             }
