@@ -57,13 +57,25 @@ class _MyHomePageState extends State<MyHomePage> {
     Timer.periodic(Duration(seconds: 5), (timer) {
       fetchVolt().then((value) => setState(() {
             _volt = value;
+            // print(value);
           }));
+      // print(timer.tick);
     });
   }
 
   void wheelsTimer() {
+    try {
+      http.post(
+        Uri.parse(uri_ip + 'wheels'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode({'start': 'begin', 'test': 1}),
+      );
     } catch (e) {}
     Timer.periodic(Duration(milliseconds: 100), (timer) {
+      // ignore: unused_local_variable
+      var lf, rf, lb, rb;
       Map wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
       if (speed == 0) {
         wheels = {
@@ -115,6 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'rb': -speed,
         };
       }
+      print(wheels['lf']);
       wheels = {
         'lf': wheels['lf'] + turn,
         'rf': wheels['rf'] - turn,
