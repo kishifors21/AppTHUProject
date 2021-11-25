@@ -463,9 +463,6 @@ class _JoyStickState extends State<JoyStick> {
         Container(
           height: 100.0,
           width: 100.0,
-          // color: Colors.lightBlue,
-          // height: MediaQuery.of(context).size.height,
-          // width: MediaQuery.of(context).size.width,
         ),
         Positioned(
           top: 50,
@@ -501,17 +498,8 @@ class _JoyStickState extends State<JoyStick> {
                     tmpOfsset.dx * 50.0 / tmpOfsset.distance,
                     tmpOfsset.dy * 50.0 / tmpOfsset.distance);
               });
-              // widget.func((tmpOfsset.dx * 50.0 / tmpOfsset.distance),
-              //     -(tmpOfsset.dy * 50.0 / tmpOfsset.distance));
               widget.func(50, tmpOfsset.direction);
             }
-            // setState(
-            //   () {
-            //     RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-            //     smallCircleOffset =
-            //         renderBox!.globalToLocal(details.globalPosition);
-            //   },
-            // );
           },
         ),
       ],
@@ -526,8 +514,6 @@ class Painter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (needsRepaint && isInBoundary) {
-      // print(
-      //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
       canvas.drawCircle(this.offset, 20,
           Paint()..color = Colors.cyan.shade200.withOpacity(0.6));
       canvas.drawCircle(
@@ -538,12 +524,8 @@ class Painter extends CustomPainter {
             ..strokeWidth = 3
             ..style = PaintingStyle.stroke);
     } else {
-      canvas.drawCircle(
-          this.offset,
-          50,
-          Paint()
-            // ..blendMode = BlendMode.overlay
-            ..color = Colors.blueGrey.shade600.withOpacity(0.5));
+      canvas.drawCircle(this.offset, 50,
+          Paint()..color = Colors.blueGrey.shade600.withOpacity(0.5));
       canvas.drawCircle(
           this.offset,
           50,
@@ -586,9 +568,6 @@ class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
         Container(
           height: 100.0,
           width: 100.0,
-          // color: Colors.lightBlue,
-          // height: MediaQuery.of(context).size.height,
-          // width: MediaQuery.of(context).size.width,
         ),
         Positioned(
           top: 50,
@@ -613,7 +592,6 @@ class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
             tmpOfsset = Offset(tmpOfsset.dx - 50, tmpOfsset.dy - 50);
 
             if (tmpOfsset.distance < 50) {
-              // if (smallCircleOffset.distance < 50) {
               setState(() {
                 smallCircleOffset = Offset(tmpOfsset.dx, 0);
               });
@@ -624,13 +602,6 @@ class _singleAxisJoyStickState extends State<singleAxisJoyStick> {
                     Offset(tmpOfsset.dx * 50 / tmpOfsset.distance, 0);
               });
             }
-            // setState(
-            //   () {
-            //     RenderBox? renderBox = context.findRenderObject() as RenderBox?;
-            //     smallCircleOffset =
-            //         renderBox!.globalToLocal(details.globalPosition);
-            //   },
-            // );
           },
         ),
       ],
@@ -645,10 +616,6 @@ class singleAxisPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (needsRepaint && isInBoundary) {
-      // print(
-      //     "Offset for smaller circle  = $offset with distance squared = ${offset.distanceSquared} \n and distance = ${offset.distance}\n direction:${offset.direction}");
-      // canvas.drawCircle(this.offset, 20,
-      //     Paint()..color = Colors.cyan.shade200.withOpacity(0.7));
       canvas.drawRRect(
           RRect.fromRectAndCorners(
             Offset(this.offset.dx - 7.5, this.offset.dy - 12.5) &
@@ -672,13 +639,6 @@ class singleAxisPainter extends CustomPainter {
             ..strokeWidth = 2
             ..style = PaintingStyle.stroke);
     } else {
-      // canvas.drawCircle(this.offset, 50, Paint()..color = Colors.grey);
-      // canvas.drawLine(
-      //     Offset(-50, 0),
-      //     Offset(50, 0),
-      //     Paint()
-      //       ..color = Colors.grey.withOpacity(0.5)
-      //       ..strokeWidth = 20);
       canvas.drawRRect(
           RRect.fromRectAndCorners(
             Offset(-50, -12.5) & Size(100.0, 25.0),
