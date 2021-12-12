@@ -8,8 +8,11 @@ import 'package:http/http.dart' as http;
 import 'package:app/my_flutter_app_icons.dart';
 
 import "dart:math" show pi;
+import 'package:flutter/foundation.dart';
 
 class OnePageApp extends StatelessWidget {
+  var uri_ip;
+  OnePageApp({this.uri_ip});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,13 +20,16 @@ class OnePageApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(
+        uri_ip: uri_ip,
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  var uri_ip;
+  MyHomePage({this.uri_ip});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -50,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void voltTimer() {
-    Timer.periodic(Duration(seconds: 5), (timer) {
+    _voltTimer = Timer.periodic(Duration(seconds: 5), (timer) {
       fetchVolt().then((value) => setState(() {
             _volt = value;
             // print(value);
@@ -123,7 +129,6 @@ class _MyHomePageState extends State<MyHomePage> {
           'rb': -speed,
         };
       }
-      print(wheels['lf']);
       wheels = {
         'lf': wheels['lf'] + turn,
         'rf': wheels['rf'] - turn,
@@ -137,13 +142,16 @@ class _MyHomePageState extends State<MyHomePage> {
           value = -4095.0;
         }
       });
-      try {
-        http.post(Uri.parse(uri_ip + 'wheels'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: json.encode(wheels));
-      } catch (e) {}
+      if (!mapEquals(wheels, last_wheels)) {
+        try {
+          http.post(Uri.parse(uri_ip + 'wheels'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: json.encode(wheels));
+          last_wheels = wheels;
+        } catch (e) {}
+      }
     });
   }
 
@@ -156,12 +164,21 @@ class _MyHomePageState extends State<MyHomePage> {
   String _volt = "-1";
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
+  Map last_wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
+  late Timer _voltTimer;
 
   void initState() {
+    uri_ip = widget.uri_ip;
     uriVideo = uri_ip + 'video_feed';
     super.initState();
     voltTimer();
     wheelsTimer();
+  }
+
+  @override
+  void dispose() {
+    _voltTimer.cancel();
+    super.dispose();
   }
 
   void getCordinates(tack_sign) async {
@@ -232,8 +249,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: JoyStick(
               func: (var joystickDistance, var joystickDirection) async {
             setState(() {
+              // joystickDistance is the pixel distance, joystickDirection is the angle frome -pi to pi
               speed = joystickDistance * 4095 / 50;
-              // speed = 1.0;
               direction = -joystickDirection;
               // x = dx;
               // y = dy;

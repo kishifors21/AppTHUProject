@@ -7,9 +7,10 @@ import 'package:http/http.dart' as http;
 
 import 'package:app/my_flutter_app_icons.dart';
 
-import "dart:math" show pi;
-
+// ignore: must_be_immutable
 class HelmetApp extends StatelessWidget {
+  var uri_ip;
+  HelmetApp({this.uri_ip});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,13 +18,14 @@ class HelmetApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(uri_ip: uri_ip),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  var uri_ip;
+  MyHomePage({this.uri_ip});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -50,7 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void voltTimer() {
-    Timer.periodic(Duration(seconds: 5), (timer) {
+    _voltTimer = Timer.periodic(Duration(seconds: 5), (timer) {
       fetchVolt().then((value) => setState(() {
             _volt = value;
             // print(value);
@@ -64,15 +66,25 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChargeToggle = true, isTrackerToggle = true;
   // String uri_ip = 'http://192.168.1.1:8080/';
   late String uriVideo;
-  String uri_ip = 'http://192.168.1.1:8080/';
+  // String uri_ip = 'http://192.168.1.1:8080/';
+  // String uri_ip = 'http://172.24.8.24:8080/';
+  String uri_ip = '';
   String _volt = "-1";
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
+  late Timer _voltTimer;
 
   void initState() {
-    uriVideo = uri_ip + 'video_feed';
+    uri_ip = widget.uri_ip;
+    uriVideo = uri_ip + 'driver_video';
     super.initState();
     voltTimer();
+  }
+
+  @override
+  void dispose() {
+    _voltTimer.cancel();
+    super.dispose();
   }
 
   void getCordinates(tack_sign) async {
@@ -195,6 +207,51 @@ class _MyHomePageState extends State<MyHomePage> {
             _showMyDialog();
           },
         ),
+        // move button
+        MoveButton(
+          dir: 0,
+          uri_ip: uri_ip,
+          bottom: 90,
+          left: 130,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+        MoveButton(
+          dir: 1,
+          uri_ip: uri_ip,
+          bottom: 150,
+          left: 130,
+          icon: Icon(
+            Icons.keyboard_arrow_up,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+        MoveButton(
+          dir: 2,
+          uri_ip: uri_ip,
+          bottom: 90,
+          left: 190,
+          icon: Icon(
+            Icons.keyboard_arrow_right,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+        MoveButton(
+          dir: 3,
+          uri_ip: uri_ip,
+          bottom: 90,
+          left: 70,
+          icon: Icon(
+            Icons.keyboard_arrow_left,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
       ],
     );
   }
@@ -243,9 +300,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () async {
               setState(() {
-                uriVideo = uriVideo == uri_ip + 'video_feed'
+                uriVideo = uriVideo == uri_ip + 'driver_video'
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + 'video_feed';
+                    : uri_ip + 'driver_video';
               });
             },
           )),
@@ -306,6 +363,120 @@ class _Button extends State<Button> {
                     // } catch (e) {}
                   },
                 ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class MoveButton extends StatefulWidget {
+  var top, bottom, right, left, icon, func, inkColor, buttonColor, dir, uri_ip;
+  MoveButton(
+      {this.top,
+      this.bottom,
+      this.right,
+      this.left,
+      this.func,
+      this.icon,
+      this.dir,
+      this.uri_ip,
+      this.inkColor = Colors.lightBlue,
+      this.buttonColor = Colors.white});
+  @override
+  _MoveButton createState() => _MoveButton();
+}
+
+class _MoveButton extends State<MoveButton> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String uri_ip = widget.uri_ip;
+    return Stack(
+      children: <Widget>[
+        Positioned(
+          top: widget.top == null ? null : widget.top.toDouble(),
+          bottom: widget.bottom == null ? null : widget.bottom.toDouble(),
+          left: widget.left == null ? null : widget.left.toDouble(),
+          right: widget.right == null ? null : widget.right.toDouble(),
+          // height: 50,
+          // width: 50,
+          child: Material(
+            color: Colors.white.withOpacity(0),
+            child: Center(
+              child: Ink(
+                decoration: ShapeDecoration(
+                    color: Colors.cyan.shade200.withOpacity(0.6),
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                            new BorderRadius.all(new Radius.circular(7)))),
+                child: GestureDetector(
+                  child: widget.icon,
+                  onTapDown: (details) {
+                    // dir
+                    //0 is down
+                    //1 is up
+                    //2 is right
+                    //3 is left
+                    if (widget.dir < 2) {
+                      Map data = {'vertical': widget.dir * 2 - 1};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'Vrotation'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
+                    } else {
+                      Map data = {'horizontal': (widget.dir - 2) * 2 - 1};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'Hrotation'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
+                    }
+                  },
+                  onTapUp: (details) {
+                    if (widget.dir < 2) {
+                      Map data = {'vertical': 0};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'Vrotation'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
+                    } else {
+                      Map data = {'horizontal': 0};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'Hrotation'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
+                    }
+                  },
+                ),
+                // IconButton(
+                //   icon: widget.icon == null ? Icon(Icons.android) : widget.icon,
+                //   color: Colors.white,
+                //   onPressed: () {
+                //     widget.func();
+                //     // try {
+                //     //   widget.func;
+                //     // } catch (e) {}
+                //   },
+                // ),
               ),
             ),
           ),

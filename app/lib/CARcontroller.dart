@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:app/my_flutter_app_icons.dart';
-
 import "dart:math" show pi;
+import 'package:flutter/foundation.dart';
 
 class CARApp extends StatelessWidget {
+  var uri_ip;
+  CARApp({this.uri_ip});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,13 +18,14 @@ class CARApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(),
+      home: MyHomePage(uri_ip: uri_ip),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  var uri_ip;
+  MyHomePage({this.uri_ip});
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -96,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'rb': -speed,
         };
       }
-      print(wheels['lf']);
+      // print(wheels['lf']);
       wheels = {
         'lf': wheels['lf'] + turn,
         'rf': wheels['rf'] - turn,
@@ -110,13 +112,16 @@ class _MyHomePageState extends State<MyHomePage> {
           value = -4095.0;
         }
       });
-      try {
-        http.post(Uri.parse(uri_ip + 'wheels'),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: json.encode(wheels));
-      } catch (e) {}
+      if (!mapEquals(wheels, last_wheels)) {
+        try {
+          http.post(Uri.parse(uri_ip + 'wheels'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: json.encode(wheels));
+          last_wheels = wheels;
+        } catch (e) {}
+      }
     });
   }
 
@@ -125,12 +130,14 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChargeToggle = true, isTrackerToggle = true;
   // String uri_ip = 'http://192.168.1.1:8080/';
   late String uriVideo;
-  String uri_ip = 'http://192.168.1.1:8080/';
+  String uri_ip = '';
   String _volt = "-1";
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
+  Map last_wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
 
   void initState() {
+    uri_ip = widget.uri_ip;
     uriVideo = uri_ip + 'video_feed';
     super.initState();
     wheelsTimer();
