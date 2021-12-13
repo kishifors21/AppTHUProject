@@ -9,10 +9,10 @@ import 'package:app/my_flutter_app_icons.dart';
 
 import "dart:math" show pi;
 import 'package:flutter/foundation.dart';
+import 'globals.dart' as globals;
 
 class OnePageApp extends StatelessWidget {
-  var uri_ip;
-  OnePageApp({this.uri_ip});
+  OnePageApp();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,17 +20,13 @@ class OnePageApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(
-        uri_ip: uri_ip,
-      ),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  var uri_ip;
-  MyHomePage({this.uri_ip});
-
+  MyHomePage();
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
@@ -168,7 +164,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Timer _voltTimer;
 
   void initState() {
-    uri_ip = widget.uri_ip;
+    uri_ip = globals.uri;
     uriVideo = uri_ip + 'video_feed';
     super.initState();
     voltTimer();
@@ -372,15 +368,74 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
               child: GestureDetector(
             child: Text(
-              'swtich view (for test)',
+              '(mjpg test)',
               style: TextStyle(color: Colors.white),
             ),
             onTap: () async {
               setState(() {
-                uriVideo = uriVideo == uri_ip + 'video_feed'
+                uriVideo = uriVideo == uri_ip + 'driver_video'
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + 'video_feed';
+                    : uri_ip + 'driver_video';
               });
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'camera reset',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'cam_index'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+              data = {'setting': 'pi_cam'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'reset modules',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'reset_modules'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'switch camera',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'cam_switch'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
             },
           )),
         ]));

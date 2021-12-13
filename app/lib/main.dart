@@ -22,8 +22,6 @@ class App extends StatelessWidget {
 
 class MenuPage extends StatelessWidget {
   @override
-  String uri_ip = 'http://172.24.8.24:8080/';
-
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Menu')),
@@ -32,29 +30,21 @@ class MenuPage extends StatelessWidget {
           child: Text('Vehical Controller'),
           onPressed: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CARApp(
-                          uri_ip: uri_ip,
-                        )));
+                context, MaterialPageRoute(builder: (context) => CARApp()));
           },
         ),
         ElevatedButton(
           child: Text('Helmet Display'),
           onPressed: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HelmetApp(uri_ip: uri_ip)));
+                context, MaterialPageRoute(builder: (context) => HelmetApp()));
           },
         ),
         ElevatedButton(
           child: Text('One-Page'),
           onPressed: () {
             Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => OnePageApp(uri_ip: uri_ip)));
+                context, MaterialPageRoute(builder: (context) => OnePageApp()));
           },
         ),
       ]),

@@ -6,11 +6,11 @@ import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:app/my_flutter_app_icons.dart';
+import 'globals.dart' as globals;
 
 // ignore: must_be_immutable
 class HelmetApp extends StatelessWidget {
-  var uri_ip;
-  HelmetApp({this.uri_ip});
+  HelmetApp();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -18,14 +18,13 @@ class HelmetApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(uri_ip: uri_ip),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  var uri_ip;
-  MyHomePage({this.uri_ip});
+  MyHomePage();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -75,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late Timer _voltTimer;
 
   void initState() {
-    uri_ip = widget.uri_ip;
+    uri_ip = globals.uri;
     uriVideo = uri_ip + 'driver_video';
     super.initState();
     voltTimer();
@@ -295,7 +294,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
               child: GestureDetector(
             child: Text(
-              'swtich view (for test)',
+              '(mjpg test)',
               style: TextStyle(color: Colors.white),
             ),
             onTap: () async {
@@ -304,6 +303,65 @@ class _MyHomePageState extends State<MyHomePage> {
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
                     : uri_ip + 'driver_video';
               });
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'cam reset',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'cam_index'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+              data = {'setting': 'driver_cam'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'reset modules',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'reset_modules'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'switch camera',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'cam_switch'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
             },
           )),
         ]));
@@ -420,11 +478,7 @@ class _MoveButton extends State<MoveButton> {
                 child: GestureDetector(
                   child: widget.icon,
                   onTapDown: (details) {
-                    // dir
-                    //0 is down
-                    //1 is up
-                    //2 is right
-                    //3 is left
+                    // dir 0: down,  1: up,  2: right,  3: left
                     if (widget.dir < 2) {
                       Map data = {'vertical': widget.dir * 2 - 1};
                       try {
@@ -467,16 +521,6 @@ class _MoveButton extends State<MoveButton> {
                     }
                   },
                 ),
-                // IconButton(
-                //   icon: widget.icon == null ? Icon(Icons.android) : widget.icon,
-                //   color: Colors.white,
-                //   onPressed: () {
-                //     widget.func();
-                //     // try {
-                //     //   widget.func;
-                //     // } catch (e) {}
-                //   },
-                // ),
               ),
             ),
           ),
