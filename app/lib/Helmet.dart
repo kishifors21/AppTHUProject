@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:app/my_flutter_app_icons.dart';
 import 'globals.dart' as globals;
+import 'package:another_flushbar/flushbar.dart';
 
 // ignore: must_be_immutable
 class HelmetApp extends StatelessWidget {
@@ -33,30 +34,29 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // int _counter = 0;
 
-  fetchVolt() async {
-    try {
-      final response = await http.get(Uri.parse(uri_ip + 'volt'));
-      if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        return response.body;
-      } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
-        throw Exception('Failed to load');
+  void messageTimer() {
+    _messageTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
+      var _message;
+      try {
+        _message = await http.get(
+          Uri.parse(uri_ip + 'info'),
+        );
+        _message = json.decode(_message.body);
+      } catch (e) {
+        print(e);
       }
-    } catch (e) {
-      // print(e);
-    }
-  }
-
-  void voltTimer() {
-    _voltTimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      fetchVolt().then((value) => setState(() {
-            _volt = value;
-            // print(value);
-          }));
-      // print(timer.tick);
+      // print(json.decode(_message.body)['message']);
+      // print(json.decode(_message.body)['volt']);
+      setState(() {
+        // _volt = message['volt'];
+        message = _message;
+      });
+      print(message['message']);
+      if (message['message'] != last_message['message'] &&
+          message['message'].toString() != '') {
+        fsb('message', message['message'].toString(), Duration(seconds: 10));
+      }
+      last_message = message;
     });
   }
 
@@ -68,21 +68,36 @@ class _MyHomePageState extends State<MyHomePage> {
   // String uri_ip = 'http://192.168.1.1:8080/';
   // String uri_ip = 'http://172.24.8.24:8080/';
   String uri_ip = '';
-  String _volt = "-1";
+  Map<String, dynamic> message = {'volt': '-1'};
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
-  late Timer _voltTimer;
-
+  late Timer _messageTimer;
+  Map<String, dynamic> last_message = {'volt': '-1', 'message': 'hello'};
   void initState() {
     uri_ip = globals.uri;
     uriVideo = uri_ip + 'driver_video';
     super.initState();
-    voltTimer();
+    messageTimer();
+  }
+
+  void fsb(title, message, duration) async {
+    await Future.delayed(Duration.zero);
+    Flushbar(
+      title: title,
+      message: message,
+      duration: duration,
+    ).show(context);
+    // Flushbar(
+    //   title: 'Hey Ninja',
+    //   message:
+    //       'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
+    //   duration: Duration(seconds: 3),
+    // ).show(context);
   }
 
   @override
   void dispose() {
-    _voltTimer.cancel();
+    _messageTimer.cancel();
     super.dispose();
   }
 
@@ -133,7 +148,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Container(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  'Volt: $_volt',
+                  'Volt: ${message['volt'].toString()}',
                   style: TextStyle(
                     color: Colors.cyan.shade100.withOpacity(0.9),
                     fontSize: 17,

@@ -30,6 +30,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_mjpeg: ^2.0.1
   http: ^0.13.3
+  another_flushbar: ^1.10.28
 
 dev_dependencies:
   flutter_test:
