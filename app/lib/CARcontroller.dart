@@ -45,7 +45,13 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {}
     Timer.periodic(Duration(milliseconds: 100), (timer) {
       // ignore: unused_local_variable
-      var lf, rf, lb, rb;
+      // get four wheels' each pwm from speed(sp) and direction(dir)
+      // sp: sp is from the distance of joystick to middle.
+      //    sp's range is from 0 to 4095, which is also pwms' range.
+      // dir: dirction is from joystick's angle.
+      // direction's range is from -pi to pi. (left is about 3.14 or -3.14, up is about 1.57, and so on)
+      //
+      //
       Map wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
       if (speed == 0) {
         wheels = {
@@ -54,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': 0.0,
           'rb': 0.0,
         };
-      } else if (direction.abs == pi / 2 || direction.abs == pi) {
+      } else if (direction.abs == pi / 2) {
         wheels = {
           'lf': speed,
           'rf': speed,
@@ -63,11 +69,12 @@ class _MyHomePageState extends State<MyHomePage> {
         };
       } else if (direction == 0 || direction.abs == pi) {
         wheels = {
-          'lf': (direction.abs() / pi) * 2 - 1 * speed,
-          'rf': (direction.abs() / pi) * 2 - 1 * -speed,
-          'lb': (direction.abs() / pi) * 2 - 1 * -speed,
-          'rb': (direction.abs() / pi) * 2 - 1 * speed,
+          'lf': -speed,
+          'rf': speed,
+          'lb': speed,
+          'rb': -speed,
         };
+        // 2nd Quadrant
       } else if (pi / 2 <= direction) {
         wheels = {
           'lf': -((direction - pi / 4 * 3) / pi * 4) * speed,
@@ -75,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': speed,
           'rb': -((direction - pi / 4 * 3) / pi * 4) * speed,
         };
+        // 1st Quadrant
       } else if (pi / 2 > direction && direction >= 0) {
         wheels = {
           'lf': speed,
@@ -82,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': ((direction - pi / 4) / pi * 4) * speed,
           'rb': speed,
         };
+        // 4th Quadrant
       } else if (-pi / 2 <= direction && direction <= 0) {
         wheels = {
           'lf': ((direction + pi / 4) / pi * 4) * speed,
@@ -89,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': -speed,
           'rb': ((direction + pi / 4) / pi * 4) * speed,
         };
+        // 3rd Quadrant
       } else if (-pi / 2 >= direction) {
         wheels = {
           'lf': -speed,
