@@ -35,7 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // int _counter = 0;
 
   void messageTimer() {
-    _messageTimer = Timer.periodic(Duration(seconds: 1), (timer) async {
+    _messageTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
       var _message;
       try {
         _message = await http.get(
@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
         // _volt = message['volt'];
         message = _message;
       });
-      print(message['message']);
+      // print(message['message']);
       if (message['message'] != last_message['message'] &&
           message['message'].toString() != '') {
         fsb('message', message['message'].toString(), Duration(seconds: 10));
@@ -68,14 +68,14 @@ class _MyHomePageState extends State<MyHomePage> {
   // String uri_ip = 'http://192.168.1.1:8080/';
   // String uri_ip = 'http://172.24.8.24:8080/';
   String uri_ip = '';
-  Map<String, dynamic> message = {'volt': '-1'};
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
+  Map<String, dynamic> message = {'volt': '-1'};
   late Timer _messageTimer;
   Map<String, dynamic> last_message = {'volt': '-1', 'message': 'hello'};
   void initState() {
     uri_ip = globals.uri;
-    uriVideo = uri_ip + 'driver_video';
+    uriVideo = uri_ip + 'video_feed';
     super.initState();
     messageTimer();
   }
@@ -87,12 +87,6 @@ class _MyHomePageState extends State<MyHomePage> {
       message: message,
       duration: duration,
     ).show(context);
-    // Flushbar(
-    //   title: 'Hey Ninja',
-    //   message:
-    //       'Lorem Ipsum is simply dummy text of the printing and typesetting industry',
-    //   duration: Duration(seconds: 3),
-    // ).show(context);
   }
 
   @override
@@ -101,18 +95,21 @@ class _MyHomePageState extends State<MyHomePage> {
     super.dispose();
   }
 
-  void getCordinates(tack_sign) async {
+  void getCordinates(track_sign) async {
     try {
+      print(track_sign);
       await http.post(
         Uri.parse(uri_ip + 'image_roi'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(
-            <String, String>{'time_count': "1", 'track_sign': tack_sign}),
+        body: jsonEncode(<String, dynamic>{
+          'time_count': track_sign.toString(),
+          'track_sign': track_sign
+        }),
       );
     } catch (e) {
-      // print(e);
+      print(e);
     }
     ;
   }
@@ -191,9 +188,9 @@ class _MyHomePageState extends State<MyHomePage> {
               isTrackerToggle = !isTrackerToggle;
             });
             try {
-              isTrackerToggle == true ? getCordinates(1) : getCordinates(1);
+              isTrackerToggle == true ? getCordinates(0) : getCordinates(1);
             } catch (e) {
-              // print(e);
+              print(e);
             }
           },
         ),
@@ -226,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
           dir: 0,
           uri_ip: uri_ip,
           bottom: 90,
-          left: 130,
+          left: 70,
           icon: Icon(
             Icons.keyboard_arrow_down,
             size: 50,
@@ -237,7 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
           dir: 1,
           uri_ip: uri_ip,
           bottom: 150,
-          left: 130,
+          left: 70,
           icon: Icon(
             Icons.keyboard_arrow_up,
             size: 50,
@@ -248,7 +245,7 @@ class _MyHomePageState extends State<MyHomePage> {
           dir: 2,
           uri_ip: uri_ip,
           bottom: 90,
-          left: 190,
+          left: 130,
           icon: Icon(
             Icons.keyboard_arrow_right,
             size: 50,
@@ -259,9 +256,31 @@ class _MyHomePageState extends State<MyHomePage> {
           dir: 3,
           uri_ip: uri_ip,
           bottom: 90,
-          left: 70,
+          left: 10,
           icon: Icon(
             Icons.keyboard_arrow_left,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+        MoveButton(
+          dir: 4,
+          uri_ip: uri_ip,
+          bottom: 90,
+          right: 90,
+          icon: Icon(
+            Icons.zoom_in,
+            size: 50,
+            color: Colors.white.withOpacity(0.3),
+          ),
+        ),
+        MoveButton(
+          dir: 5,
+          uri_ip: uri_ip,
+          bottom: 90,
+          right: 20,
+          icon: Icon(
+            Icons.zoom_out,
             size: 50,
             color: Colors.white.withOpacity(0.3),
           ),
@@ -314,10 +333,27 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () async {
               setState(() {
-                uriVideo = uriVideo == uri_ip + 'driver_video'
+                uriVideo = uriVideo == uri_ip + 'video_feed'
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + 'driver_video';
+                    : uri_ip + 'video_feed';
               });
+            },
+          )),
+          Expanded(
+              child: GestureDetector(
+            child: Text(
+              'cam index reset',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Map data = {'setting': 'cam_index'};
+              try {
+                http.post(Uri.parse(uri_ip + 'Setting'),
+                    headers: <String, String>{
+                      'Content-Type': 'application/json; charset=UTF-8',
+                    },
+                    body: json.encode(data));
+              } catch (e) {}
             },
           )),
           Expanded(
@@ -327,7 +363,7 @@ class _MyHomePageState extends State<MyHomePage> {
               style: TextStyle(color: Colors.white),
             ),
             onTap: () {
-              Map data = {'setting': 'cam_index'};
+              Map data = {'setting': 'pi_cam'};
               try {
                 http.post(Uri.parse(uri_ip + 'Setting'),
                     headers: <String, String>{
@@ -503,7 +539,7 @@ class _MoveButton extends State<MoveButton> {
                             },
                             body: json.encode(data));
                       } catch (e) {}
-                    } else {
+                    } else if (widget.dir < 4) {
                       Map data = {'horizontal': (widget.dir - 2) * 2 - 1};
                       try {
                         http.post(Uri.parse(uri_ip + 'Hrotation'),
@@ -512,9 +548,18 @@ class _MoveButton extends State<MoveButton> {
                             },
                             body: json.encode(data));
                       } catch (e) {}
+                    } else {
+                      Map data = {'sign': widget.dir - 4};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'tracking_size'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
                     }
                   },
-                  onTapUp: (details) {
+                  onPanEnd: (details) {
                     if (widget.dir < 2) {
                       Map data = {'vertical': 0};
                       try {
@@ -524,10 +569,19 @@ class _MoveButton extends State<MoveButton> {
                             },
                             body: json.encode(data));
                       } catch (e) {}
-                    } else {
+                    } else if (widget.dir < 4) {
                       Map data = {'horizontal': 0};
                       try {
                         http.post(Uri.parse(uri_ip + 'Hrotation'),
+                            headers: <String, String>{
+                              'Content-Type': 'application/json; charset=UTF-8',
+                            },
+                            body: json.encode(data));
+                      } catch (e) {}
+                    } else {
+                      Map data = {'sign': -1};
+                      try {
+                        http.post(Uri.parse(uri_ip + 'tracking_size'),
                             headers: <String, String>{
                               'Content-Type': 'application/json; charset=UTF-8',
                             },

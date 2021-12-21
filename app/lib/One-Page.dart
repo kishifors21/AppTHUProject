@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
@@ -34,29 +35,26 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // int _counter = 0;
 
-  fetchVolt() async {
-    try {
-      final response = await http.get(Uri.parse(uri_ip + 'volt'));
-      if (response.statusCode == 200) {
-        // If the server did return a 200 OK response,
-        // then parse the JSON.
-        return response.body;
-      } else {
-        // If the server did not return a 200 OK response,
-        // then throw an exception.
-        throw Exception('Failed to load');
+  void messageTimer() {
+    _messageTimer = Timer.periodic(Duration(seconds: 5), (timer) async {
+      var _message;
+      try {
+        _message = await http.get(
+          Uri.parse(uri_ip + 'info'),
+        );
+        _message = json.decode(_message.body);
+      } catch (e) {
+        print(e);
       }
-    } catch (e) {
-      // print(e);
-    }
-  }
-
-  void voltTimer() {
-    _voltTimer = Timer.periodic(Duration(seconds: 5), (timer) {
-      fetchVolt().then((value) => setState(() {
-            _volt = value;
-            // print(value);
-          }));
+      setState(() {
+        // _volt = message['volt'];
+        message = _message;
+      });
+      if (message['message'] != last_message['message'] &&
+          message['message'].toString() != '') {
+        fsb('message', message['message'].toString(), Duration(seconds: 10));
+      }
+      last_message = message;
       // print(timer.tick);
     });
   }
@@ -73,7 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {}
     Timer.periodic(Duration(milliseconds: 100), (timer) {
       // ignore: unused_local_variable
-      var lf, rf, lb, rb;
+      // get four wheels' each pwm from speed(sp) and direction(dir)
+      // sp: sp is from the distance of joystick to middle.
+      //    sp's range is from 0 to 4095, which is also pwms' range.
+      // dir: dirction is from joystick's angle.
+      // direction's range is from -pi to pi. (left is about 3.14 or -3.14, up is about 1.57, and so on)
+      //
+      //
       Map wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
       if (speed == 0) {
         wheels = {
@@ -82,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': 0.0,
           'rb': 0.0,
         };
-      } else if (direction.abs == pi / 2 || direction.abs == pi) {
+      } else if (direction.abs == pi / 2) {
         wheels = {
           'lf': speed,
           'rf': speed,
@@ -91,11 +95,12 @@ class _MyHomePageState extends State<MyHomePage> {
         };
       } else if (direction == 0 || direction.abs == pi) {
         wheels = {
-          'lf': (direction.abs() / pi) * 2 - 1 * speed,
-          'rf': (direction.abs() / pi) * 2 - 1 * -speed,
-          'lb': (direction.abs() / pi) * 2 - 1 * -speed,
-          'rb': (direction.abs() / pi) * 2 - 1 * speed,
+          'lf': -speed,
+          'rf': speed,
+          'lb': speed,
+          'rb': -speed,
         };
+        // 2nd Quadrant
       } else if (pi / 2 <= direction) {
         wheels = {
           'lf': -((direction - pi / 4 * 3) / pi * 4) * speed,
@@ -103,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': speed,
           'rb': -((direction - pi / 4 * 3) / pi * 4) * speed,
         };
+        // 1st Quadrant
       } else if (pi / 2 > direction && direction >= 0) {
         wheels = {
           'lf': speed,
@@ -110,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': ((direction - pi / 4) / pi * 4) * speed,
           'rb': speed,
         };
+        // 4th Quadrant
       } else if (-pi / 2 <= direction && direction <= 0) {
         wheels = {
           'lf': ((direction + pi / 4) / pi * 4) * speed,
@@ -117,6 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
           'lb': -speed,
           'rb': ((direction + pi / 4) / pi * 4) * speed,
         };
+        // 3rd Quadrant
       } else if (-pi / 2 >= direction) {
         wheels = {
           'lf': -speed,
@@ -160,20 +168,31 @@ class _MyHomePageState extends State<MyHomePage> {
   String _volt = "-1";
   var x = 0.0, y = 0.0, turn = 0.0;
   var speed = 0.0, direction = 0.0;
+  Map<String, dynamic> message = {'volt': '-1'};
   Map last_wheels = {'lf': 0.0, 'rf': 0.0, 'lb': 0.0, 'rb': 0.0};
-  late Timer _voltTimer;
+  late Timer _messageTimer;
+  Map<String, dynamic> last_message = {'volt': '-1', 'message': 'hello'};
 
   void initState() {
     uri_ip = globals.uri;
     uriVideo = uri_ip + 'video_feed';
     super.initState();
-    voltTimer();
+    messageTimer();
     wheelsTimer();
+  }
+
+  void fsb(title, message, duration) async {
+    await Future.delayed(Duration.zero);
+    Flushbar(
+      title: title,
+      message: message,
+      duration: duration,
+    ).show(context);
   }
 
   @override
   void dispose() {
-    _voltTimer.cancel();
+    _messageTimer.cancel();
     super.dispose();
   }
 
@@ -184,8 +203,8 @@ class _MyHomePageState extends State<MyHomePage> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-        body: jsonEncode(
-            <String, String>{'time_count': "1", 'track_sign': tack_sign}),
+        body:
+            jsonEncode(<String, int>{'time_count': 1, 'track_sign': tack_sign}),
       );
     } catch (e) {
       // print(e);
@@ -295,7 +314,7 @@ class _MyHomePageState extends State<MyHomePage> {
               isTrackerToggle = !isTrackerToggle;
             });
             try {
-              isTrackerToggle == true ? getCordinates(1) : getCordinates(1);
+              isTrackerToggle == true ? getCordinates(1) : getCordinates(0);
             } catch (e) {
               // print(e);
             }
@@ -373,9 +392,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             onTap: () async {
               setState(() {
-                uriVideo = uriVideo == uri_ip + 'driver_video'
+                uriVideo = uriVideo == uri_ip + 'video_feed'
                     ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + 'driver_video';
+                    : uri_ip + 'video_feed';
               });
             },
           )),

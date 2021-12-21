@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app/CARcontroller.dart';
 import 'package:app/Helmet.dart';
 import 'package:app/One-Page.dart';
+import 'package:app/camera.dart';
 
 void main() {
   runApp(App());
@@ -45,6 +46,13 @@ class MenuPage extends StatelessWidget {
           onPressed: () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (context) => OnePageApp()));
+          },
+        ),
+        ElevatedButton(
+          child: Text('test'),
+          onPressed: () {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => camera()));
           },
         ),
       ]),
