@@ -1,13 +1,10 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
 
 import "dart:math" show pi;
 import 'package:flutter/foundation.dart';
-import 'package:app/globals.dart' as globals;
 
 // ignore: must_be_immutable
 class JoyStick extends StatefulWidget {
@@ -242,7 +239,9 @@ class singleAxisPainter extends CustomPainter {
 
 // ignore: must_be_immutable
 class movePosition extends StatefulWidget {
-  var top,
+  var joystick_bottom,
+      singlejoystick_bottom,
+      top,
       bottom,
       height,
       width,
@@ -254,7 +253,9 @@ class movePosition extends StatefulWidget {
       inkColor,
       buttonColor;
   movePosition(
-      {this.top,
+      {this.joystick_bottom = 50.0,
+      this.singlejoystick_bottom = 50.0,
+      this.top,
       this.bottom = 50,
       this.height = 100,
       this.width = 100,
@@ -265,10 +266,10 @@ class movePosition extends StatefulWidget {
       this.inkColor = Colors.lightBlue,
       this.buttonColor = Colors.white});
   @override
-  _movePosition createState() => _movePosition();
+  _movePositionState createState() => _movePositionState();
 }
 
-class _movePosition extends State<movePosition> {
+class _movePositionState extends State<movePosition> {
   @override
   void initState() {
     super.initState();
@@ -279,14 +280,14 @@ class _movePosition extends State<movePosition> {
     return Stack(
       children: <Widget>[
         new Positioned(
-          bottom: 50,
+          bottom: widget.joystick_bottom,
           height: 100,
           width: 100,
           left: 30,
           child: JoyStick(func: widget.joystickFunc),
         ),
         new Positioned(
-          bottom: 50,
+          bottom: widget.singlejoystick_bottom,
           right: 30,
           height: 100,
           width: 100,

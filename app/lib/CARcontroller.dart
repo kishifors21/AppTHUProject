@@ -2,31 +2,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'globals.dart' as globals;
 
-import 'package:app/components/CARcontroller.dart';
 import 'package:app/components/common.dart';
+import 'package:app/components/CARcontroller_component.dart';
 
-class CARApp extends StatelessWidget {
+class CARApp extends StatefulWidget {
   CARApp();
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Vehical Controller',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage();
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _CARAppState createState() => _CARAppState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _CARAppState extends State<CARApp> {
   // declare variable
   String uri_ip = '';
   var x = 0.0, y = 0.0, turn = 0.0;
@@ -39,8 +25,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     wheelsTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       last_wheels = wheelFunc(speed, direction, turn, last_wheels, uri_ip);
-
-      print(last_wheels);
     });
   }
 

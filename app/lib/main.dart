@@ -16,6 +16,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      initialRoute: "/",
       home: MenuPage(),
     );
   }
@@ -48,13 +49,13 @@ class MenuPage extends StatelessWidget {
                 context, MaterialPageRoute(builder: (context) => OnePageApp()));
           },
         ),
-        ElevatedButton(
-          child: Text('test'),
-          onPressed: () {
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => camera()));
-          },
-        ),
+        // ElevatedButton(
+        //   child: Text('test'),
+        //   onPressed: () {
+        //     Navigator.push(
+        //         context, MaterialPageRoute(builder: (context) => camera()));
+        //   },
+        // ),
       ]),
     );
   }

@@ -4,9 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
+import 'package:another_flushbar/flushbar.dart';
 
-import "dart:math" show pi;
-import 'package:flutter/foundation.dart';
 import 'package:app/globals.dart' as globals;
 
 class commonPage extends StatefulWidget {
@@ -14,10 +13,10 @@ class commonPage extends StatefulWidget {
   commonPage({this.pageType});
 
   @override
-  _commonPage createState() => _commonPage();
+  _commonPageState createState() => _commonPageState();
 }
 
-class _commonPage extends State<commonPage> {
+class _commonPageState extends State<commonPage> {
   // int _counter = 0;
 
   // declare variable
@@ -64,10 +63,21 @@ class _commonPage extends State<commonPage> {
         Button(
           icon: Icon(Icons.settings),
           inkColor: Colors.lightBlue,
-          top: 10,
+          top: 30,
           right: 10,
           func: () {
             _showMyDialog();
+          },
+        ),
+        Button(
+          top: 30,
+          left: 0,
+          icon: Icon(Icons.arrow_back),
+          func: () {
+            // Navigator.pop(context);
+            print(context);
+            print(ModalRoute.of(context));
+            Navigator.of(context)..pop();
           },
         ),
       ],
@@ -108,29 +118,39 @@ class _commonPage extends State<commonPage> {
               setState(() {
                 islive = true;
               });
+              Flushbar(
+                title: 'message',
+                message: 'refresh done',
+                duration: Duration(seconds: 3),
+              ).show(context);
             },
           )),
-          Expanded(
-              child: GestureDetector(
-            child: Text(
-              '(mjpg test)',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () async {
-              setState(() {
-                uriVideo = uriVideo == uri_ip + 'driver_video'
-                    ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
-                    : uri_ip + 'driver_video';
-              });
-            },
-          )),
+          // Expanded(
+          //     child: GestureDetector(
+          //   child: Text(
+          //     '(mjpg test)',
+          //     style: TextStyle(color: Colors.white),
+          //   ),
+          //   onTap: () async {
+          //     setState(() {
+          //       uriVideo = uriVideo == uri_ip + 'driver_video'
+          //           ? 'http://91.133.85.170:8090/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER'
+          //           : uri_ip + 'driver_video';
+          //     });
+          //   },
+          // )),
           Expanded(
               child: GestureDetector(
             child: Text(
               'cam reset',
               style: TextStyle(color: Colors.white),
             ),
-            onTap: () {
+            onTap: () async {
+              Flushbar(
+                title: 'message',
+                message: 'cam resetting...',
+                duration: Duration(seconds: 2),
+              ).show(context);
               Map data = {'setting': 'cam_index'};
               try {
                 http.post(Uri.parse(uri_ip + 'Setting'),
@@ -147,6 +167,18 @@ class _commonPage extends State<commonPage> {
                     },
                     body: json.encode(data));
               } catch (e) {}
+              setState(() {
+                islive = false;
+              });
+              await Future.delayed(Duration(seconds: 2));
+              setState(() {
+                islive = true;
+              });
+              Flushbar(
+                title: 'message',
+                message: 'cam reset done!',
+                duration: Duration(seconds: 3),
+              ).show(context);
             },
           )),
           Expanded(
@@ -163,6 +195,11 @@ class _commonPage extends State<commonPage> {
                       'Content-Type': 'application/json; charset=UTF-8',
                     },
                     body: json.encode(data));
+                Flushbar(
+                  title: 'message',
+                  message: 'module reset done!',
+                  duration: Duration(seconds: 3),
+                ).show(context);
               } catch (e) {}
             },
           )),
@@ -172,7 +209,15 @@ class _commonPage extends State<commonPage> {
               'switch camera',
               style: TextStyle(color: Colors.white),
             ),
-            onTap: () {
+            onTap: () async {
+              Flushbar(
+                title: 'message',
+                message: 'cam switching...',
+                duration: Duration(seconds: 3),
+              ).show(context);
+              setState(() {
+                islive = false;
+              });
               Map data = {'setting': 'cam_switch'};
               try {
                 http.post(Uri.parse(uri_ip + 'Setting'),
@@ -181,6 +226,15 @@ class _commonPage extends State<commonPage> {
                     },
                     body: json.encode(data));
               } catch (e) {}
+              await Future.delayed(Duration(seconds: 2));
+              setState(() {
+                islive = true;
+              });
+              Flushbar(
+                title: 'message',
+                message: 'cam switch done!',
+                duration: Duration(seconds: 3),
+              ).show(context);
             },
           )),
         ]));
